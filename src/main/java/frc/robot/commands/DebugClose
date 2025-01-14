@@ -1,0 +1,26 @@
+package frc.robot.commands;
+
+import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.Debug;
+
+public class DebugClose extends CommandBase {
+    private final Debug debugLogger;
+
+    // Constructor accepts the Debug instance to stop logging
+    public DebugClose(Debug debugLogger) {
+        this.debugLogger = debugLogger;
+        addRequirements();  // Add any necessary requirements if needed (e.g., subsystem)
+    }
+
+    @Override
+    public void initialize() {
+        // Close the debug log when the command is initialized
+        debugLogger.closelog();
+    }
+
+    @Override
+    public boolean isFinished() {
+        // The command finishes immediately after closing the log
+        return true;
+    }
+}
