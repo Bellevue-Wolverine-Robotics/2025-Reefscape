@@ -1,63 +1,104 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot;
 
-import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.Autos;
-import frc.robot.commands.ExampleCommand;
-import frc.robot.subsystems.ExampleSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.commands.*;
+import frc.robot.constants.IOConstants.DriverButtonConstants;
+import frc.robot.constants.IOConstants.OperatorButtonConstants;
+import frc.robot.subsystems.*;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.DriverStation;
+import frc.robot.subsystems.FlyWheelSubsystem;
+import frc.robot.commands.FullRoutines;
 
-/**
- * This class is where the bulk of the robot should be declared. Since Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
- * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
- * subsystems, commands, and trigger mappings) should be declared here.
- */
+import frc.robot.commands.drivetrain.ArcadeDriveCommand;
+
 public class RobotContainer {
-  // The robot's subsystems and commands are defined here...
-  private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
 
-  // Replace with CommandPS4Controller or CommandJoystick if needed
-  private final CommandXboxController m_driverController =
-      new CommandXboxController(OperatorConstants.kDriverControllerPort);
+    // Subsystems
+    private final DriveSubystem m_driveSubsystem = new DriveSubystem();
+    // private final IntakeSubsystem m_intakeSubsystem = new IntakeSubsystem();
+    // private final FlywheelSubsystem m_flywheelSubsystem = new FlywheelSubsystem();
+    private final ClimberSubsystem m_climberSubsystem = new ClimberSubsystem();
 
-  /** The container for the robot. Contains subsystems, OI devices, and commands. */
-  public RobotContainer() {
-    // Configure the trigger bindings
-    configureBindings();
-  }
+    // Joysticks and Buttons
+    private final Joystick m_driverJoystick = new Joystick(0);
+    private final Joystick m_operatorJoystick = new Joystick(1);
 
-  /**
-   * Use this method to define your trigger->command mappings. Triggers can be created via the
-   * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary
-   * predicate, or via the named factories in {@link
-   * edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses for {@link
-   * CommandXboxController Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller
-   * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
-   * joysticks}.
-   */
-  private void configureBindings() {
-    // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-    new Trigger(m_exampleSubsystem::exampleCondition)
-        .onTrue(new ExampleCommand(m_exampleSubsystem));
+    // Constructor
+    public RobotContainer() {
+        // Set up default commands
+        //m_driveSubsystem.setDefaultCommand(new ArcadeDriveCommand(m_driveSubsystem, m_driverJoystick));
 
-    // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
-    // cancelling on release.
-    m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
-  }
+        // Configure button bindings
+        configureButtonBindings();
 
-  /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
-   *
-   * @return the command to run in autonomous
-   */
-  public Command getAutonomousCommand() {
-    // An example command will be run in autonomous
-    return Autos.exampleAuto(m_exampleSubsystem);
-  }
+      // Add options to the throttle selection
+       //throttleSelection.addOption("Default Throttle", ThrottlesSmartdashboard.DEFAULT);
+       // throttleSelection.addOption("Alternate Throttle", ThrottlesSmartdashboard.ALTERNATE);
+    }
+
+    // Configure button bindings
+    private void configureButtonBindings() {
+        // Driver buttons
+        new JoystickButton(m_driverJoystick, DriverButtonConstants.kDriveSpeedPreset1Button)
+            .whenPressed(new FullRoutines(m_driveSubsystem, m_flywheelSubsystem));
+
+        // Operator buttons
+        new JoystickButton(m_operatorJoystick, OperatorButtonConstants.kClimbUpButton)
+            .whenPressed(new ClimberExtendCommand(m_climberSubsystem));
+
+        new JoystickButton(m_operatorJoystick, OperatorButtonConstants.kClimbDownButton)
+            .whenPressed(new ClimberRetractCommand(m_climberSubsystem));
+
+        new JoystickButton(m_operatorJoystick, OperatorButtonConstants.kIntakeDeployButton)
+            .whenPressed(new DeployIntakeCommand(m_intakeSubsystem));
+
+        new JoystickButton(m_operatorJoystick, OperatorButtonConstants.kIntakeStowButton)
+            .whenPressed(new StowIntakeCommand(m_intakeSubsystem));
+
+        // Flywheel commands
+        new JoystickButton(m_operatorJoystick, OperatorButtonConstants.kFlywheelAimButton)
+            .whenPressed(new FlywheelAimIntakeReceiveCommand(m_flywheelSubsystem));
+
+        new JoystickButton(m_operatorJoystick, OperatorButtonConstants.kFlywheelCalibrateButton)
+            .whenPressed(new FlywheelCalibrate(m_flywheelSubsystem));
+
+        new JoystickButton(m_operatorJoystick, OperatorButtonConstants.kFlywheelClimbModeButton)
+            .whenPressed(new FlywheelClimbModeCommand(m_flywheelSubsystem));
+    }
+
+    // Get the autonomous command
+    //public Command getAutonomousCommand() {
+        // Placeholder: return your autonomous command here
+        //return new FullRoutines(m_driveSubsystem, m_flywheelSubsystem);
+    //}
+
+    // Getters for subsystems
+    public DriveSubystem getDriveSubsystem() {
+        return m_driveSubsystem;
+    }
+
+    public IntakeSubsystem getIntakeSubsystem() {
+        return m_intakeSubsystem;
+    }
+
+    public FlywheelSubsystem getFlywheelSubsystem() {
+        return m_flywheelSubsystem;
+    }
+
+   //public ClimberSubsystem getClimberSubsystem() {
+  //    return m_climberSubsystem;
+   //}
+
+    // Get throttle selection from SmartDashboard
+    //public ThrottlesSmartdashboard getThrottleSelection() {
+        //return throttleSelection.getSelected();
+    //}
+
+    // Update the previous throttle setting (e.g., for diagnostics or logging)
+    //public void updatePrevThrottle() {
+        //prevThrottle = getThrottleSelection();
+    //}
 }
