@@ -22,6 +22,8 @@ public class Robot extends TimedRobot {
 
   private final RobotContainer m_robotContainer;
 
+  private double speed;
+
   private final SparkMax m_leftFront = new SparkMax(4, MotorType.kBrushless);
   private final SparkMax m_leftBack = new SparkMax(3, MotorType.kBrushless);
   private final SparkMax m_rightFront = new SparkMax(2, MotorType.kBrushless);
@@ -36,6 +38,7 @@ public class Robot extends TimedRobot {
   public Robot() {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
+    speed = 1.0d;
     m_robotContainer = new RobotContainer();
   }
 
@@ -92,13 +95,18 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
+    if (c_controller.getAButtonPressed()) speed = 0.075;
+    else if (c_controller.getBButtonPressed()) speed = 0.10;
+    else if (c_controller.getXButtonPressed()) speed = 0.05;
+    else if (c_controller.getYButtonPressed()) speed = 0.125;
+    //boolean menu_button_pressed = c_controller.getRawButtonPressed(8);
     double left_stick_vertical_axis = c_controller.getRawAxis(1);
     double right_stick_vertical_axis = c_controller.getRawAxis(5);
 
-    m_leftFront.set(-left_stick_vertical_axis);
-    m_leftBack.set(-left_stick_vertical_axis);
-    m_rightFront.set(right_stick_vertical_axis);
-    m_rightBack.set(right_stick_vertical_axis);
+    m_leftFront.set(-left_stick_vertical_axis * speed);
+    m_leftBack.set(-left_stick_vertical_axis * speed);
+    m_rightFront.set(right_stick_vertical_axis * speed);
+    m_rightBack.set(right_stick_vertical_axis * speed);
   }
 
   @Override
