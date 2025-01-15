@@ -8,7 +8,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
-import frc.robot.subsystems.FlyWheelSubsystem;
 
 public final class FullRoutines {
 
@@ -16,48 +15,48 @@ public final class FullRoutines {
     throw new UnsupportedOperationException("This is a utility class!");
   }
 
-  public static Command getShootAtSpeakerRoutine(FlyWheelSubsystem flywheelSubsystem) {
-    return new SequentialCommandGroup(
-        //new FlywheelAimSpeakerCommand(flywheelSubsystem),
+  // public static Command getShootAtSpeakerRoutine(FlyWheelSubsystem flywheelSubsystem) {
+  //   return new SequentialCommandGroup(
+  //       //new FlywheelAimSpeakerCommand(flywheelSubsystem),
 
-        new SequentialCommandGroup(
-          new InstantCommand(() -> {
-            flywheelSubsystem.setShoulderAimSpeaker();
-          }),
-          new WaitCommand(0.8),
-          new InstantCommand(() -> {
-            flywheelSubsystem.setElbowAimSpeaker();
-          })
+  //       new SequentialCommandGroup(
+  //         new InstantCommand(() -> {
+  //           flywheelSubsystem.setShoulderAimSpeaker();
+  //         }),
+  //         new WaitCommand(0.8),
+  //         new InstantCommand(() -> {
+  //           flywheelSubsystem.setElbowAimSpeaker();
+  //         })
 
-        )
+  //       )
 
 
-        //new InstantCommand(flywheelSubsystem::startShooter, flywheelSubsystem),
+  //       //new InstantCommand(flywheelSubsystem::startShooter, flywheelSubsystem),
 
-        //new WaitCommand(1),
-        //new InstantCommand(flywheelSubsystem::startFeeder, flywheelSubsystem),
-        //new WaitCommand(3),
-        //new InstantCommand(flywheelSubsystem::stopShooter, flywheelSubsystem),
-        //new InstantCommand(flywheelSubsystem::stopFeeder, flywheelSubsystem),
-        //new FlywheelMoveToMakeSpaceForIntakeCommand(flywheelSubsystem)
-      );
-  }
+  //       //new WaitCommand(1),
+  //       //new InstantCommand(flywheelSubsystem::startFeeder, flywheelSubsystem),
+  //       //new WaitCommand(3),
+  //       //new InstantCommand(flywheelSubsystem::stopShooter, flywheelSubsystem),
+  //       //new InstantCommand(flywheelSubsystem::stopFeeder, flywheelSubsystem),
+  //       //new FlywheelMoveToMakeSpaceForIntakeCommand(flywheelSubsystem)
+  //     );
+  // }
 
-  public static Command getFullIntakeRoutine(IntakeSubsystem intakeSubsystem, FlyWheelSubsystem flywheelSubsystem) {
-    return new SequentialCommandGroup(
-        new FlywheelMoveToMakeSpaceForIntakeCommand(flywheelSubsystem),
-        new DeployIntakeCommand(intakeSubsystem),
-        new StowIntakeCommand(intakeSubsystem),
-        new FlywheelAimIntakeReceiveCommand(flywheelSubsystem)
+  // public static Command getFullIntakeRoutine(IntakeSubsystem intakeSubsystem, FlyWheelSubsystem flywheelSubsystem) {
+  //   return new SequentialCommandGroup(
+  //       new FlywheelMoveToMakeSpaceForIntakeCommand(flywheelSubsystem),
+  //       // new DeployIntakeCommand(intakeSubsystem),
+  //       // new StowIntakeCommand(intakeSubsystem),
+  //       new FlywheelAimIntakeReceiveCommand(flywheelSubsystem)
   
         
-        );
-  }
+  //       );
+  // }
 
-  public static Command prepareToClimb(IntakeSubsystem intakeSubsystem) {
-    return new SequentialCommandGroup(
-        new DeployIntakeCommandWithoutStartingMotor(intakeSubsystem));
-  }
+  // public static Command prepareToClimb(IntakeSubsystem intakeSubsystem) {
+  //   return new SequentialCommandGroup(
+  //       new DeployIntakeCommandWithoutStartingMotor(intakeSubsystem));
+  // }
 }
 // new ParallelCommandGroup(
 // new StartIntakeCommand(intakeSubsystem),

@@ -1,7 +1,7 @@
 package frc.utils;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-import com.revrobotics.CANSparkMax;
+//import com.revrobotics.CANSparkMax;
 
 public class Throttles {
     private double limit;
@@ -12,9 +12,9 @@ public class Throttles {
         this.gradient = gradient;
     }
 
-    public void setLimit(CANSparkMax motor){
-        motor.getPIDController().setOutputRange(-limit, limit);
-    }
+    //public void setLimit(SparkMax motor){
+    //    motor.getPIDController().setOutputRange(-limit, limit);
+    //}
     public void setLimit(WPI_TalonSRX motor){
         //motor.configmax();
     }
