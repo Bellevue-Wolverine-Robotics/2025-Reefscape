@@ -5,12 +5,9 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj.XboxController;
-
-import java.lang.ProcessBuilder.Redirect.Type;
-
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
@@ -25,6 +22,13 @@ public class Robot extends TimedRobot {
   private SparkMax testMotor = new SparkMax(1, MotorType.kBrushless);
 
   private final RobotContainer m_robotContainer;
+
+  private final SparkMax m_leftFront = new SparkMax(4, MotorType.kBrushless);
+  private final SparkMax m_leftBack = new SparkMax(3, MotorType.kBrushless);
+  private final SparkMax m_rightFront = new SparkMax(2, MotorType.kBrushless);
+  private final SparkMax m_rightBack = new SparkMax(1, MotorType.kBrushless);
+
+  private final XboxController c_controller = new XboxController(0);
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -81,6 +85,7 @@ public class Robot extends TimedRobot {
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
     // this line or comment it out.
+
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
@@ -88,7 +93,15 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+    double left_stick_vertical_axis = c_controller.getRawAxis(1);
+    double right_stick_vertical_axis = c_controller.getRawAxis(5);
+
+    m_leftFront.set(left_stick_vertical_axis);
+    m_leftBack.set(left_stick_vertical_axis);
+    m_rightFront.set(-right_stick_vertical_axis);
+    m_rightBack.set(-right_stick_vertical_axis);
+  }
 
   @Override
   public void testInit() {
