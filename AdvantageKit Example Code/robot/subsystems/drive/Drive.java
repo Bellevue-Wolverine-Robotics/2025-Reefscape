@@ -139,10 +139,10 @@ public class Drive extends SubsystemBase {
     io.setVelocity(leftRadPerSec, rightRadPerSec, leftFFVolts, rightFFVolts);
   }
 
-  /** Runs the drive in open loop. */
-  public void runOpenLoop(double leftVolts, double rightVolts) {
-    io.setVoltage(leftVolts, rightVolts);
-  }
+    /** Runs the drive in open loop. */
+    public void runOpenLoop(double leftVolts, double rightVolts) {
+      io.setVoltage(leftVolts, rightVolts);
+    }
 
   /** Stops the drive. */
   public void stop() {
