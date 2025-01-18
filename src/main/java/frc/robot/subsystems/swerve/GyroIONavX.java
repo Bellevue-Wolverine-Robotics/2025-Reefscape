@@ -1,13 +1,13 @@
-package frc.robot.devices;
-
-import frc.robot.interfaces.GyroIO;
+package frc.robot.subsystems.swerve;
 
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.SPI;
 
-/** IO implementation for NavX. */
+/**
+ * Represents a NavX IMU implementation of the GyroIO interface
+ */
 public class GyroIONavX implements GyroIO {
   private final AHRS navX = new AHRS(SPI.Port.kMXP);
 

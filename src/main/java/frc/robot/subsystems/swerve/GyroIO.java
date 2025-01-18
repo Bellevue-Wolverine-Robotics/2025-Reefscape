@@ -1,10 +1,13 @@
-package frc.robot.interfaces;
+package frc.robot.subsystems.swerve;
 
 import org.littletonrobotics.junction.AutoLog;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 
-/** Interface for a gyro sensor and logging its values */
+/**
+ * Represents a hardware abstraction layer for a gyroscope that
+ * supports logging with AdvantageKit.
+ */
 public interface GyroIO {
   /** Class for storing gyro states */
   @AutoLog
