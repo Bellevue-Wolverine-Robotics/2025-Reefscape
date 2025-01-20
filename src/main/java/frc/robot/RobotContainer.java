@@ -6,8 +6,11 @@ package frc.robot;
 
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
+import frc.robot.commands.GoForwardForOneSecondCommand;
 import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.subsystems.TankDriveSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -20,15 +23,24 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
+  private final TankDriveSubsystem m_TankDriveSubsystem = new TankDriveSubsystem();
+
+  private final GoForwardForOneSecondCommand goForwardForOneSecondCommand = new GoForwardForOneSecondCommand(m_TankDriveSubsystem);
+
+  private final CommandXboxController xboxController = new CommandXboxController(0);
+  private final Trigger aButton = xboxController.a();
+
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   //private final CommandXboxController m_driverController =
-      //new CommandXboxController(OperatorConstants.kDriverControllerPort);
+  //new CommandXboxController(OperatorConstants.kDriverControllerPort);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the trigger bindings
     configureBindings();
+
+    CommandScheduler.getInstance().registerSubsystem(m_TankDriveSubsystem);
   }
 
   /**
@@ -47,7 +59,7 @@ public class RobotContainer {
 
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // cancelling on release.
-    //m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
+    xboxController.b().onTrue(goForwardForOneSecondCommand);
   }
 
   /**

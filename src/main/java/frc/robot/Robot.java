@@ -5,12 +5,9 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 /**
  * The methods in this class are called automatically corresponding to each mode, as described in
@@ -22,15 +19,6 @@ public class Robot extends TimedRobot {
 
   private final RobotContainer m_robotContainer;
 
-  private double speed;
-
-  private final SparkMax m_leftFront = new SparkMax(4, MotorType.kBrushless);
-  private final SparkMax m_leftBack = new SparkMax(3, MotorType.kBrushless);
-  private final SparkMax m_rightFront = new SparkMax(2, MotorType.kBrushless);
-  private final SparkMax m_rightBack = new SparkMax(1, MotorType.kBrushless);
-
-  private final XboxController c_controller = new XboxController(0);
-
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -38,7 +26,6 @@ public class Robot extends TimedRobot {
   public Robot() {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
-    speed = 1.0d;
     m_robotContainer = new RobotContainer();
   }
 
@@ -68,8 +55,6 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
-
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
@@ -78,7 +63,11 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during autonomous. */
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+
+
+
+  }
 
   @Override
   public void teleopInit() {
@@ -95,19 +84,44 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
+    /*
     if (c_controller.getAButtonPressed()) speed = 0.075;
     else if (c_controller.getBButtonPressed()) speed = 0.10;
     else if (c_controller.getXButtonPressed()) speed = 0.05;
     else if (c_controller.getYButtonPressed()) speed = 0.125;
-    //boolean menu_button_pressed = c_controller.getRawButtonPressed(8);
-    double left_stick_vertical_axis = c_controller.getRawAxis(1);
-    double right_stick_vertical_axis = c_controller.getRawAxis(5);
+    else if (c_controller.getRawButtonPressed(8)) {
+      if (drive_mode + 1 > max_drive_mode) drive_mode = 0;
+      else drive_mode++;
+    }
 
-    m_leftFront.set(-left_stick_vertical_axis * speed);
-    m_leftBack.set(-left_stick_vertical_axis * speed);
-    m_rightFront.set(right_stick_vertical_axis * speed);
-    m_rightBack.set(right_stick_vertical_axis * speed);
+    if (drive_mode == 0)
+    {
+      double left_stick_vertical_axis = c_controller.getRawAxis(1);
+      double right_stick_vertical_axis = c_controller.getRawAxis(5);
+      
+      m_leftFront.set(-left_stick_vertical_axis * speed);
+      m_leftBack.set(-left_stick_vertical_axis * speed);
+      m_rightFront.set(right_stick_vertical_axis * speed);
+      m_rightBack.set(right_stick_vertical_axis * speed);
+    }
+
+    else if (drive_mode == 1)
+    {
+      double left_stick_horizontal_axis = c_controller.getRawAxis(0);
+      double rotation_coeffecient = 2 * left_stick_horizontal_axis + 1;
+      double right_trigger_axis = c_controller.getRawAxis(3);
+
+      m_leftFront.set(-right_trigger_axis * -rotation_coeffecient * speed);
+      m_leftBack.set(-right_trigger_axis * -rotation_coeffecient * speed);
+      m_rightFront.set(right_trigger_axis * rotation_coeffecient * speed);
+      m_rightBack.set(right_trigger_axis * rotation_coeffecient * speed);
+
+
+
+
+    }
   }
+  */}
 
   @Override
   public void testInit() {
