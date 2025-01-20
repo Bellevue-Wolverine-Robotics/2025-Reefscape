@@ -1,4 +1,4 @@
-package frc.robot.constants;
+package frc.robot.Constants;
 
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.RobotConfig;
@@ -7,6 +7,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 
 public final class DriveConstants {
+
 	// CAN IDs
 	public static final int kFrontLeftMotorId = 4;
 	public static final int kFrontRightMotorId = 2;
@@ -30,11 +31,12 @@ public final class DriveConstants {
 	public static final int kCurrentLimit = 30;
 	public static final int kVoltageCompensation = 12;
 
-	public static final double kMaxSpeedMetersPerSec = 2.0;
+	public static final double kMaxSpeedMetersPerSec = 1.5;
 
 	public static final DCMotor gearbox = DCMotor.getCIM(2);
 
-	/** Velocity PID configuration, common variables:
+	/**
+	 * Velocity PID configuration, common variables:
 	 * P - proportional
 	 * I - integral
 	 * D - derivative
@@ -43,7 +45,7 @@ public final class DriveConstants {
 	 * V - velocity
 	 * A - acceleration
 	 * G - gravity
-	*/
+	 */
 	public static final double realKp = 0.0;
 	public static final double realKd = 0.0;
 	public static final double realKs = 0.0;
@@ -69,4 +71,6 @@ public final class DriveConstants {
 					kCurrentLimit,
 					2),
 			kTrackWidthMeters);
+
+	double π = 3.1415926535897932384;
 }

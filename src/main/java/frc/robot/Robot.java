@@ -11,8 +11,15 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
+import com.studica.frc.AHRS;
+import com.studica.frc.AHRS.NavXComType;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.OperatorConstants;
+import frc.robot.utils.Debug;
 
 /**
  * Where the robot container is instantiated and the different states (teleop,
@@ -22,6 +29,7 @@ public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
 
   private final RobotContainer m_robotContainer;
+  final CommandXboxController driverXbox = new CommandXboxController(0);
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -29,25 +37,27 @@ public class Robot extends LoggedRobot {
    * initialization code.
    */
   public Robot() {
-    Logger.recordMetadata("ProjectName", "949 Reefscape");
-    if (isReal()) {
-      Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
-      Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
-      // new PowerDistribution(1, ModuleType.kRev); // Enables power distribution
-      // logging
-    } else {
-      setUseTiming(false); // Run as fast as possible
-      String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the user)
-      Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
-      Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save outputs to a new log
-    }
+    // Logger.recordMetadata("ProjectName", "949 Reefscape");
+    // if (isReal()) {
+    // Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
+    // Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
+    // // new PowerDistribution(1, ModuleType.kRev); // Enables power distribution
+    // // logging
+    // } else {
+    // setUseTiming(false); // Run as fast as possible
+    // String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from
+    // AdvantageScope (or prompt the user)
+    // Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
+    // Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath,
+    // "_sim"))); // Save outputs to a new log
+    // }
 
-    Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
-    Logger.start();
+    // Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
+    // Logger.start();
 
-    // Instantiate our RobotContainer. This will perform all our button bindings,
-    // and put our
-    // autonomous chooser on the dashboard.
+    // // Instantiate our RobotContainer. This will perform all our button bindings,
+    // // and put our
+    // // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
   }
 
@@ -70,6 +80,8 @@ public class Robot extends LoggedRobot {
     // and running subsystem periodic() methods. This must be called from the
     // robot's periodic
     // block in order for anything in the Command-based framework to work.
+    // Debug.debugXboxController();
+
     CommandScheduler.getInstance().run();
   }
 

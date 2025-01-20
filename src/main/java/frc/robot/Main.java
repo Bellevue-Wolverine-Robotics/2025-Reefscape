@@ -18,6 +18,7 @@ public final class Main {
    *
    * @param args The command line arguments that nobody needs to worry about.
    */
+
   public static void main(String... args) {
     RobotBase.startRobot(Robot::new);
   }
