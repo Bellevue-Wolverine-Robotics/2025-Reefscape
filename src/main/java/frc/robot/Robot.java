@@ -17,8 +17,8 @@ import com.studica.frc.AHRS.NavXComType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.Constants.DriveConstants;
-import frc.robot.Constants.OperatorConstants;
+import frc.robot.constants.DriveConstants;
+import frc.robot.constants.OperatorConstants;
 import frc.robot.utils.Debug;
 
 /**

@@ -1,4 +1,4 @@
-package frc.robot.Constants;
+package frc.robot.constants;
 
 import edu.wpi.first.wpilibj.RobotBase;
 

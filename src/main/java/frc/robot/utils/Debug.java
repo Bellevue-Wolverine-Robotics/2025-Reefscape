@@ -1,7 +1,7 @@
 package frc.robot.utils;
 
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.Constants.OperatorConstants;
+import frc.robot.constants.OperatorConstants;
 
 public class Debug {
   public static final CommandXboxController driverXbox = new CommandXboxController(0);

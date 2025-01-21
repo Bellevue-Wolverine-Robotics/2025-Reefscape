@@ -26,8 +26,12 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructArrayPublisher;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
@@ -35,8 +39,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
-import frc.robot.Constants.*;
-import frc.robot.Constants.DriveConstants;
+import frc.robot.constants.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -69,6 +72,23 @@ public class SwerveSubsystem extends SubsystemBase {
    * Enable vision odometry updates while driving.
    */
   private final boolean visionDriveTest = false;
+
+  StructPublisher<Pose2d> posePublisher = NetworkTableInstance.getDefault()
+      .getStructTopic("SwerveSubsystem/OdometryPose", Pose2d.struct).publish();
+  StructArrayPublisher<SwerveModuleState> moduleStatePublisher = NetworkTableInstance.getDefault()
+      .getStructArrayTopic("SwerveSubsystem/SwerveModuleStates", SwerveModuleState.struct).publish();
+
+  @Override
+  public void periodic() {
+    // When vision is enabled we must manually update odometry in SwerveDrive
+    // if (visionDriveTest) {
+    // swerveDrive.updateOdometry();
+    // vision.updatePoseEstimation(swerveDrive);
+    // }
+
+    posePublisher.set(this.getPose());
+    moduleStatePublisher.set(this.swerveDrive.kinematics.toSwerveModuleStates(getFieldVelocity()));
+  }
 
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
@@ -133,15 +153,6 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   // public void setupPhotonVision() {
   // vision = new Vision(swerveDrive::getPose, swerveDrive.field);
-  // }
-
-  // @Override
-  // public void periodic() {
-  // // When vision is enabled we must manually update odometry in SwerveDrive
-  // if (visionDriveTest) {
-  // swerveDrive.updateOdometry();
-  // vision.updatePoseEstimation(swerveDrive);
-  // }
   // }
 
   @Override

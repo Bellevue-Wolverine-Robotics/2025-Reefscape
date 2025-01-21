@@ -1,4 +1,4 @@
-package frc.robot.Constants;
+package frc.robot.constants;
 
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.RobotConfig;
@@ -28,10 +28,10 @@ public final class DriveConstants {
 	public static final boolean kLeftInverted = false;
 	public static final boolean kRightInverted = true;
 
-	public static final int kCurrentLimit = 30;
+	public static final int kCurrentLimit = 20;
 	public static final int kVoltageCompensation = 12;
 
-	public static final double kMaxSpeedMetersPerSec = 1.5;
+	public static final double kMaxSpeedMetersPerSec = 3;
 
 	public static final DCMotor gearbox = DCMotor.getCIM(2);
 

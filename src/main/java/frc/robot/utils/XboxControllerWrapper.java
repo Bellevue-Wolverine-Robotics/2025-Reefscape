@@ -3,7 +3,7 @@ package frc.robot.utils;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Robot;
-import frc.robot.Constants.OperatorConstants;
+import frc.robot.constants.OperatorConstants;
 
 public class XboxControllerWrapper extends CommandXboxController {
   public XboxControllerWrapper(int port) {

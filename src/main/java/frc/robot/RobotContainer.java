@@ -21,8 +21,8 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.swerve.*;
 import frc.robot.utils.XboxControllerWrapper;
-import frc.robot.Constants.*;
 import swervelib.SwerveInputStream;
+import frc.robot.constants.*;
 
 /**
  * Where most of the structure of the robot, including subsystems, commands, and
@@ -68,8 +68,8 @@ public class RobotContainer {
     // driverXbox.a().onTrue((Commands.runOnce(driveSubsystem::zeroGyro)));
     // driverXbox.x().onTrue(Commands.runOnce(driveSubsystem::addFakeVisionReading));
     // driverXbox.b().whileTrue(
-    // driveSubsystem.driveToPose(
-    // new Pose2d(new Translation2d(4, 4), Rotation2d.fromDegrees(0))));
+    //     driveSubsystem.driveToPose(
+    //         new Pose2d(new Translation2d(4, 4), Rotation2d.fromDegrees(0))));
     // driverXbox.start().whileTrue(Commands.none());
     // driverXbox.back().whileTrue(Commands.none());
     // driverXbox.leftBumper().whileTrue(Commands.runOnce(driveSubsystem::lock,
@@ -78,60 +78,40 @@ public class RobotContainer {
     // }
   }
 
-  // The robot's subsystems and commands are defined here...
-  /**
-   * Converts driver input into a field-relative ChassisSpeeds that is controlled
-   * by angular velocity.
-   */
-  SwerveInputStream driveAngularVelocity = SwerveInputStream.of(driveSubsystem.getSwerveDrive(),
-      () -> driverXbox.getLeftY() * -1,
-      () -> driverXbox.getLeftX() * -1)
-      .withControllerRotationAxis(driverXbox::getRightX)
-      .deadband(OperatorConstants.kDeadzone)
-      .scaleTranslation(0.8)
-      .allianceRelativeControl(true);
-
-  /**
-   * Clone's the angular velocity input stream and converts it to a fieldRelative
-   * input stream.
-   */
-  SwerveInputStream driveDirectAngle = driveAngularVelocity.copy().withControllerHeadingAxis(driverXbox::getRightX,
-      driverXbox::getRightY)
-      .headingWhile(true);
-
   private void setDefaultDriveBehavior() {
-    // SwerveInputStream driveDirectAngle =
-    // SwerveInputStream.of(driveSubsystem.getSwerveDrive(),
-    // () -> -driverXbox.getLeftY(),
-    // () -> -driverXbox.getLeftX())
-    // .withControllerHeadingAxis(
-    // () -> -driverXbox.getRightX(),
-    // () -> -driverXbox.getRightY())
-    // .headingWhile(true);
-    // .allianceRelativeControl(true);
-    // .deadband(OperatorConstants.kDeadzone);
+    SwerveInputStream driveDirectAngle = SwerveInputStream.of(driveSubsystem.getSwerveDrive(),
+        () -> driverXbox.getLeftY(),
+        () -> driverXbox.getLeftX())
+        .withControllerHeadingAxis(
+            () -> -driverXbox.getRightX(),
+            () -> -driverXbox.getRightY())
+        .headingWhile(true)
+        .allianceRelativeControl(true)
+        .deadband(OperatorConstants.kDeadzone);
 
-    // SwerveInputStream driveAngularSpeed =
-    // SwerveInputStream.of(driveSubsystem.getSwerveDrive(),
-    // () -> -driverXbox.getLeftY(),
-    // () -> -driverXbox.getLeftX())
-    // .withControllerRotationAxis(() -> -driverXbox.getRightX())
-    // .deadband(OperatorConstants.kDeadzone);
+    SwerveInputStream driveAngularSpeed = SwerveInputStream.of(driveSubsystem.getSwerveDrive(),
+        () -> driverXbox.getLeftY(),
+        () -> driverXbox.getLeftX())
+        .withControllerRotationAxis(() -> -driverXbox.getRightX())
+        .deadband(OperatorConstants.kDeadzone);
 
     Command driveDirectAngleCommand = driveSubsystem.driveFieldOriented(driveDirectAngle);
-    // Command driveAngularSpeedCommand =
-    // driveSubsystem.driveFieldOriented(driveAngularSpeed);
+    Command driveAngularSpeedCommand = driveSubsystem.driveFieldOriented(driveAngularSpeed);
 
     driveSubsystem.setDefaultCommand(driveDirectAngleCommand);
 
-    // driverXbox.rightTrigger().onTrue(new InstantCommand(() -> {
-    // System.out.println("driveAngularSpeed");
-    // driveSubsystem.setDefaultCommand(driveAngularSpeedCommand);
-    // }, driveSubsystem));
+    driverXbox.rightTrigger().onTrue(new InstantCommand(() -> {
+      System.out.println("driveAngularSpeed");
+      driveSubsystem.setDefaultCommand(driveAngularSpeedCommand);
+    }, driveSubsystem));
 
-    // driverXbox.rightTrigger().onFalse(new InstantCommand(() -> {
-    // System.out.println("driveDirectAngle");
-    // driveSubsystem.setDefaultCommand(driveDirectAngleCommand);
-    // }, driveSubsystem));
+    driverXbox.rightTrigger().onFalse(new InstantCommand(() -> {
+      System.out.println("driveDirectAngle");
+      driveSubsystem.setDefaultCommand(driveDirectAngleCommand);
+    }, driveSubsystem));
+
+    driverXbox.b().whileTrue(
+        driveSubsystem.driveToPose(
+            new Pose2d(new Translation2d(4, 4), Rotation2d.fromDegrees(0))));
   }
 }
