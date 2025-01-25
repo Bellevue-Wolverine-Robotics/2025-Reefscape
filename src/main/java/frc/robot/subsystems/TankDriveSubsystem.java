@@ -4,74 +4,84 @@
 
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkRelativeEncoder;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 public class TankDriveSubsystem extends SubsystemBase {
 
-    private final SparkMax m_leftFront = new SparkMax(4, MotorType.kBrushless);
-    private final SparkMax m_leftBack = new SparkMax(3, MotorType.kBrushless);
-    private final SparkMax m_rightFront = new SparkMax(2, MotorType.kBrushless);
-    private final SparkMax m_rightBack = new SparkMax(1, MotorType.kBrushless);
+    private final SparkMax leftMotor = new SparkMax(4, MotorType.kBrushless);
+    private final SparkMax rightMotor = new SparkMax(2, MotorType.kBrushless);
     private final XboxController c_controller = new XboxController(0);
 
-    private final DifferentialDrive m_robotDrive1 =
-        new DifferentialDrive(m_leftFront::set, m_rightFront::set);
+    private final DifferentialDrive robotDrive =
+        new DifferentialDrive(leftMotor::set, rightMotor::set);
 
-    private final DifferentialDrive m_robotDrive2 =
-        new DifferentialDrive(m_leftBack::set, m_rightBack::set);
+    private SparkMax[] motors = {leftMotor, rightMotor};
 
+    public enum DriveMotor {
+        LEFTMOTOR(0),
+        RIGHTMOTOR(1);
 
-    private boolean goingForward = false;
+        private final int index;
+        private DriveMotor(int index) {
+            this.index = index;
+        }
+    }
 
-    /** Creates a new ExampleSubsystem. */
+    private boolean moving = false;
+
     public TankDriveSubsystem() {
-        m_rightFront.setInverted(true);
-        m_rightBack.setInverted(true);
+        // I know its deprecated but too bad so sad
+        rightMotor.setInverted(true);
+
+        for (SparkMax motor : motors) {
+            motor.getEncoder().setPosition(0);
+        }
     }
 
     /**
-     * Sets all motors at a speed.
+     * Gets the given motor's encoder.
      * 
+     * @param motor The motor whose encoder will be returned.
+     */
+    public RelativeEncoder getMotorEncoder(DriveMotor motor) {
+        return motors[motor.index].getEncoder();
+    }
+
+    /**
+     * Sets the given motor at the given speed.
+     * 
+     * @param motor The motor whose speed will be set to the given <speed>.
      * @param speed Scale of 0-1 of the speed the motors will go at.
      * Negative for backwards.
      */
-    public void SetAllMotors(float speed) {
-        goingForward = true;
-        m_leftFront.set(-speed);
-        m_leftBack.set(-speed);
-        m_rightFront.set(speed);
-        m_rightBack.set(speed);
-    }
-
-    public void StopAllMotors()
-    {
-        m_leftFront.stopMotor();
-        m_leftBack.stopMotor();
-        m_rightFront.stopMotor();
-        m_rightBack.stopMotor();
-        goingForward = false;
+    public void setMotor(DriveMotor motor, float speed) {
+        moving = true;
+        motors[motor.index].set(speed);
     }
 
     /**
-     * An example method querying a boolean state of the subsystem (for example, a digital sensor).
-     *
-     * @return value of some boolean subsystem state, such as a digital sensor.
+     * Stops all the motors, and sets private variable 
+     * <moving> to false, causing the system to be drivable
+     * using the controller again.
      */
-    public boolean exampleCondition() {
-        // Query some boolean state, such as a digital sensor.
-        return false;
+    public void stopAllMotors()
+    {
+        leftMotor.stopMotor();
+        rightMotor.stopMotor();
+        moving = false;
     }
 
     @Override
     public void periodic() {
-        if (!goingForward)
+        if (!moving)
         {
             /*
             // This method will be called once per scheduler run
@@ -85,8 +95,7 @@ public class TankDriveSubsystem extends SubsystemBase {
             m_rightBack.set(right_stick_vertical_axis * 0.125);
             */
 
-            m_robotDrive1.arcadeDrive(-c_controller.getLeftY(), -c_controller.getRightX());
-            m_robotDrive2.arcadeDrive(-c_controller.getLeftY(), -c_controller.getRightX());
+            robotDrive.arcadeDrive(-c_controller.getLeftY()/9.0f, -c_controller.getLeftX()/9.0f);
         }
         
     }

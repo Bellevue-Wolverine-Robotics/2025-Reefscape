@@ -5,8 +5,8 @@
 package frc.robot;
 
 import frc.robot.commands.Autos;
-import frc.robot.commands.ExampleCommand;
-import frc.robot.commands.GoForwardForOneSecondCommand;
+import frc.robot.commands.MoveForDistance;
+import frc.robot.commands.MoveForTime;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.TankDriveSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -25,10 +25,10 @@ public class RobotContainer {
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private final TankDriveSubsystem m_TankDriveSubsystem = new TankDriveSubsystem();
 
-  private final GoForwardForOneSecondCommand goForwardForOneSecondCommand = new GoForwardForOneSecondCommand(m_TankDriveSubsystem);
-
+  private final MoveForTime goForwardForTwoHalfSecondCommand = new MoveForTime(m_TankDriveSubsystem, 2500, 0.1f, 0.1f);
+  private final MoveForDistance goForwardHundredInches = new MoveForDistance(m_TankDriveSubsystem, 100, 0.1f, 0.1f);
+  
   private final CommandXboxController xboxController = new CommandXboxController(0);
-  private final Trigger aButton = xboxController.a();
 
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
@@ -53,22 +53,17 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-    new Trigger(m_exampleSubsystem::exampleCondition)
-        .onTrue(new ExampleCommand(m_exampleSubsystem));
-
-    // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
-    // cancelling on release.
-    xboxController.b().onTrue(goForwardForOneSecondCommand);
+    // Schedule command on b button pressed.
+    xboxController.b().onTrue(goForwardForTwoHalfSecondCommand);
+    xboxController.x().onTrue(goForwardHundredInches);
   }
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
    * @return the command to run in autonomous
-   */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
     return Autos.exampleAuto(m_exampleSubsystem);
-  }
+  */
 }

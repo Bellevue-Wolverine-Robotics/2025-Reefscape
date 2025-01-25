@@ -83,45 +83,7 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {
-    /*
-    if (c_controller.getAButtonPressed()) speed = 0.075;
-    else if (c_controller.getBButtonPressed()) speed = 0.10;
-    else if (c_controller.getXButtonPressed()) speed = 0.05;
-    else if (c_controller.getYButtonPressed()) speed = 0.125;
-    else if (c_controller.getRawButtonPressed(8)) {
-      if (drive_mode + 1 > max_drive_mode) drive_mode = 0;
-      else drive_mode++;
-    }
-
-    if (drive_mode == 0)
-    {
-      double left_stick_vertical_axis = c_controller.getRawAxis(1);
-      double right_stick_vertical_axis = c_controller.getRawAxis(5);
-      
-      m_leftFront.set(-left_stick_vertical_axis * speed);
-      m_leftBack.set(-left_stick_vertical_axis * speed);
-      m_rightFront.set(right_stick_vertical_axis * speed);
-      m_rightBack.set(right_stick_vertical_axis * speed);
-    }
-
-    else if (drive_mode == 1)
-    {
-      double left_stick_horizontal_axis = c_controller.getRawAxis(0);
-      double rotation_coeffecient = 2 * left_stick_horizontal_axis + 1;
-      double right_trigger_axis = c_controller.getRawAxis(3);
-
-      m_leftFront.set(-right_trigger_axis * -rotation_coeffecient * speed);
-      m_leftBack.set(-right_trigger_axis * -rotation_coeffecient * speed);
-      m_rightFront.set(right_trigger_axis * rotation_coeffecient * speed);
-      m_rightBack.set(right_trigger_axis * rotation_coeffecient * speed);
-
-
-
-
-    }
-  }
-  */}
+  public void teleopPeriodic() {}
 
   @Override
   public void testInit() {
