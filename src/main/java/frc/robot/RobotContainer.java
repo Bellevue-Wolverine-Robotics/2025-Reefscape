@@ -4,12 +4,9 @@
 
 package frc.robot;
 
-import frc.robot.commands.Autos;
 import frc.robot.commands.MoveForDistance;
 import frc.robot.commands.MoveForTime;
-import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.TankDriveSubsystem;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -22,11 +19,11 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private final TankDriveSubsystem m_TankDriveSubsystem = new TankDriveSubsystem();
 
-  private final MoveForTime goForwardForTwoHalfSecondCommand = new MoveForTime(m_TankDriveSubsystem, 2500, 0.1f, 0.1f);
-  private final MoveForDistance goForwardHundredInches = new MoveForDistance(m_TankDriveSubsystem, 100, 0.1f, 0.1f);
+  private final MoveForTime goForwardForTwoHalfSecondCommand = new MoveForTime(m_TankDriveSubsystem, 2500, 0.1d, 0.1d);
+  // 0.25 speed is cursed!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  private final MoveForDistance goForwardHundredInches = new MoveForDistance(m_TankDriveSubsystem, 5.0d, 0.1d, 0.1d);
   
   private final CommandXboxController xboxController = new CommandXboxController(0);
 
@@ -42,7 +39,7 @@ public class RobotContainer {
 
     CommandScheduler.getInstance().registerSubsystem(m_TankDriveSubsystem);
   }
-
+  
   /**
    * Use this method to define your trigger->command mappings. Triggers can be created via the
    * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary

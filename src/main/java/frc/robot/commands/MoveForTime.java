@@ -10,12 +10,12 @@ import java.time.Instant;
 public class MoveForTime extends Command {
     private final TankDriveSubsystem tankDriveSubsystem;
 
+    private final int movementTime;
+    private final double rightMotorSpeed;
+    private final double leftMotorSpeed;
+
     private boolean ended;
     private Instant starttime;
-
-    private int movementTime;
-    private float rightMotorSpeed;
-    private float leftMotorSpeed;
 
     // Dist per revolution = 18.85 inches
     // 5676 RPM = 94.6 rps
@@ -25,10 +25,10 @@ public class MoveForTime extends Command {
    *
    * @param subsystem The subsystem used by this command.
    * @param movementTime The time in milliseconds the motors will be moving at the given speed
-   * @param rightMotorSpeed Scale of 0-1 of the speed the right motor will go at.
-   * @param leftMotorSpeed Scale of 0-1 of the speed the left motor will go at.
+   * @param rightMotorSpeed The speed to set the right motor at. Value should be between -1.0 and 1.0.
+   * @param leftMotorSpeed The speed to set the left motor at. Value should be between -1.0 and 1.0.
    */
-    public MoveForTime(TankDriveSubsystem subsystem, int movementTime, float rightMotorSpeed, float leftMotorSpeed) {
+    public MoveForTime(TankDriveSubsystem subsystem, int movementTime, double rightMotorSpeed, double leftMotorSpeed) {
         tankDriveSubsystem = subsystem;
         // Use addRequirements() here to declare subsystem dependencies.
         addRequirements(subsystem);

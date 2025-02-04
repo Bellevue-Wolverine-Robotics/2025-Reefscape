@@ -9,9 +9,10 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 
+import java.io.Console;
+
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.SparkRelativeEncoder;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 public class TankDriveSubsystem extends SubsystemBase {
@@ -40,10 +41,7 @@ public class TankDriveSubsystem extends SubsystemBase {
     public TankDriveSubsystem() {
         // I know its deprecated but too bad so sad
         rightMotor.setInverted(true);
-
-        for (SparkMax motor : motors) {
-            motor.getEncoder().setPosition(0);
-        }
+        robotDrive.setSafetyEnabled(false);
     }
 
     /**
@@ -62,7 +60,7 @@ public class TankDriveSubsystem extends SubsystemBase {
      * @param speed Scale of 0-1 of the speed the motors will go at.
      * Negative for backwards.
      */
-    public void setMotor(DriveMotor motor, float speed) {
+    public void setMotor(DriveMotor motor, double speed) {
         moving = true;
         motors[motor.index].set(speed);
     }
@@ -72,8 +70,7 @@ public class TankDriveSubsystem extends SubsystemBase {
      * <moving> to false, causing the system to be drivable
      * using the controller again.
      */
-    public void stopAllMotors()
-    {
+    public void stopAllMotors() {
         leftMotor.stopMotor();
         rightMotor.stopMotor();
         moving = false;
@@ -81,8 +78,7 @@ public class TankDriveSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        if (!moving)
-        {
+        if (!moving) {
             /*
             // This method will be called once per scheduler run
             double left_stick_vertical_axis = c_controller.getRawAxis(1);
@@ -95,9 +91,9 @@ public class TankDriveSubsystem extends SubsystemBase {
             m_rightBack.set(right_stick_vertical_axis * 0.125);
             */
 
-            robotDrive.arcadeDrive(-c_controller.getLeftY()/9.0f, -c_controller.getLeftX()/9.0f);
+            //robotDrive.arcadeDrive(-c_controller.getLeftY()/9.0d, -c_controller.getLeftX()/9.0d);
+            //rightMotor.set(0.1d);
         }
-        
     }
 
     @Override
