@@ -13,7 +13,7 @@ public class XboxControllerWrapper extends CommandXboxController {
   @Override
   public double getLeftX() {
     if (Robot.isSimulation()) {
-      return this.getRawAxis(OperatorConstants.kControllerLeftX);
+      return -this.getRawAxis(OperatorConstants.kControllerLeftX);
     }
     return super.getLeftX();
   }
@@ -21,7 +21,7 @@ public class XboxControllerWrapper extends CommandXboxController {
   @Override
   public double getLeftY() {
     if (Robot.isSimulation()) {
-      return this.getRawAxis(OperatorConstants.kControllerLeftY);
+      return -this.getRawAxis(OperatorConstants.kControllerLeftY);
     }
     return super.getLeftY();
   }
