@@ -4,10 +4,12 @@
 
 package frc.robot;
 
-import frc.robot.commands.MoveForDistance;
-import frc.robot.commands.MoveForTime;
-import frc.robot.subsystems.TankDriveSubsystem;
+import frc.robot.commands.MoveForDistanceCommand;
+import frc.robot.commands.MoveForTimeCommand;
+import frc.robot.subsystems.DriveSubsystem;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -19,13 +21,13 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final TankDriveSubsystem m_TankDriveSubsystem = new TankDriveSubsystem();
+  private final DriveSubsystem driveSubsystem = new DriveSubsystem();
 
-  private final MoveForTime goForwardForTwoHalfSecondCommand = new MoveForTime(m_TankDriveSubsystem, 2500, 0.1d, 0.1d);
-  // 0.25 speed is cursed!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  private final MoveForDistance goForwardHundredInches = new MoveForDistance(m_TankDriveSubsystem, 5.0d, 0.1d, 0.1d);
+  private final MoveForTimeCommand goForwardForTwoHalfSecondCommand = new MoveForTimeCommand(driveSubsystem, 2500, 0.25d, 0.25d);
+  private final MoveForDistanceCommand goForwardHundredInches = new MoveForDistanceCommand(driveSubsystem, 10.0d, 0.050d, 0.050d);
   
   private final CommandXboxController xboxController = new CommandXboxController(0);
+  private final XboxController xboxControllerHID = xboxController.getHID();
 
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
@@ -37,7 +39,9 @@ public class RobotContainer {
     // Configure the trigger bindings
     configureBindings();
 
-    CommandScheduler.getInstance().registerSubsystem(m_TankDriveSubsystem);
+    CommandScheduler.getInstance().registerSubsystem(driveSubsystem);
+    driveSubsystem.setDefaultCommand(new RunCommand(() -> 
+      driveSubsystem.arcadeDrive(xboxControllerHID.getLeftY() / 3.0d, xboxControllerHID.getLeftX() / 3.0d), driveSubsystem));
   }
   
   /**
@@ -59,8 +63,12 @@ public class RobotContainer {
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
    * @return the command to run in autonomous
+   */
+
+  /*
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
     return Autos.exampleAuto(m_exampleSubsystem);
+  }
   */
 }

@@ -1,14 +1,14 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.TankDriveSubsystem;
-import frc.robot.subsystems.TankDriveSubsystem.DriveMotor;
+import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.DriveSubsystem.DriveMotor;
 
 import java.time.Duration;
 import java.time.Instant;
 
-public class MoveForTime extends Command {
-    private final TankDriveSubsystem tankDriveSubsystem;
+public class MoveForTimeCommand extends Command {
+    private final DriveSubsystem driveSubsystem;
 
     private final int movementTime;
     private final double rightMotorSpeed;
@@ -28,8 +28,8 @@ public class MoveForTime extends Command {
    * @param rightMotorSpeed The speed to set the right motor at. Value should be between -1.0 and 1.0.
    * @param leftMotorSpeed The speed to set the left motor at. Value should be between -1.0 and 1.0.
    */
-    public MoveForTime(TankDriveSubsystem subsystem, int movementTime, double rightMotorSpeed, double leftMotorSpeed) {
-        tankDriveSubsystem = subsystem;
+    public MoveForTimeCommand(DriveSubsystem subsystem, int movementTime, double rightMotorSpeed, double leftMotorSpeed) {
+        driveSubsystem = subsystem;
         // Use addRequirements() here to declare subsystem dependencies.
         addRequirements(subsystem);
 
@@ -43,17 +43,16 @@ public class MoveForTime extends Command {
     public void initialize() {
         ended = false;
         starttime = Instant.now();
-        tankDriveSubsystem.setMotor(DriveMotor.LEFTMOTOR, leftMotorSpeed);
-        tankDriveSubsystem.setMotor(DriveMotor.RIGHTMOTOR, rightMotorSpeed);
+        driveSubsystem.setMotor(DriveMotor.LEFTMOTOR, leftMotorSpeed);
+        driveSubsystem.setMotor(DriveMotor.RIGHTMOTOR, rightMotorSpeed);
     }
 
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
-        // Setting the speed repeatedly makes the safety watchdog happy,
-        // no other reason. Without this, it shuts down in 100ms.
-        tankDriveSubsystem.setMotor(DriveMotor.LEFTMOTOR, leftMotorSpeed);
-        tankDriveSubsystem.setMotor(DriveMotor.RIGHTMOTOR, rightMotorSpeed);
+        // Feed the safety watchdog to affirm the motors should be running.
+        driveSubsystem.safetyFeed();
+
         if (Duration.between(starttime, Instant.now()).toMillis() > movementTime)
         {
             ended = true;
@@ -63,7 +62,7 @@ public class MoveForTime extends Command {
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
-        tankDriveSubsystem.stopAllMotors();
+        driveSubsystem.stopAllMotors();
     }
 
     // Returns true when the command should end.

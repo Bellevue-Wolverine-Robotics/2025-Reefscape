@@ -5,26 +5,22 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-
-import java.io.Console;
 
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
-public class TankDriveSubsystem extends SubsystemBase {
+public class DriveSubsystem extends SubsystemBase {
 
     private final SparkMax leftMotor = new SparkMax(4, MotorType.kBrushless);
     private final SparkMax rightMotor = new SparkMax(2, MotorType.kBrushless);
-    private final XboxController c_controller = new XboxController(0);
 
-    private final DifferentialDrive robotDrive =
-        new DifferentialDrive(leftMotor::set, rightMotor::set);
+    private final XboxController controller = new XboxController(0);
+    private final DifferentialDrive robotDrive;
 
-    private SparkMax[] motors = {leftMotor, rightMotor};
+    private SparkMax[] motors;
 
     public enum DriveMotor {
         LEFTMOTOR(0),
@@ -38,10 +34,12 @@ public class TankDriveSubsystem extends SubsystemBase {
 
     private boolean moving = false;
 
-    public TankDriveSubsystem() {
-        // I know its deprecated but too bad so sad
+    public DriveSubsystem() {
         rightMotor.setInverted(true);
-        robotDrive.setSafetyEnabled(false);
+
+        motors = new SparkMax[]{leftMotor, rightMotor};
+
+        robotDrive = new DifferentialDrive(leftMotor::set, rightMotor::set);
     }
 
     /**
@@ -66,8 +64,8 @@ public class TankDriveSubsystem extends SubsystemBase {
     }
 
     /**
-     * Stops all the motors, and sets private variable 
-     * <moving> to false, causing the system to be drivable
+     * Stops all the motors, and sets private variable
+     * {@code moving} to false, causing the system to be drivable
      * using the controller again.
      */
     public void stopAllMotors() {
@@ -76,28 +74,16 @@ public class TankDriveSubsystem extends SubsystemBase {
         moving = false;
     }
 
-    @Override
-    public void periodic() {
-        if (!moving) {
-            /*
-            // This method will be called once per scheduler run
-            double left_stick_vertical_axis = c_controller.getRawAxis(1);
-            double right_stick_vertical_axis = c_controller.getRawAxis(5);
-            if (left_stick_vertical_axis > 0.5d) System.out.print("  i  ");
-            
-            m_leftFront.set(-left_stick_vertical_axis * 0.125);
-            m_leftBack.set(-left_stick_vertical_axis * 0.125);
-            m_rightFront.set(right_stick_vertical_axis * 0.125);
-            m_rightBack.set(right_stick_vertical_axis * 0.125);
-            */
-
-            //robotDrive.arcadeDrive(-c_controller.getLeftY()/9.0d, -c_controller.getLeftX()/9.0d);
-            //rightMotor.set(0.1d);
-        }
+    public void arcadeDrive(double xSpeed, double zRotation)
+    {
+        if (moving) return;
+        robotDrive.arcadeDrive(xSpeed, zRotation);
     }
 
-    @Override
-    public void simulationPeriodic() {
-        // This method will be called once per scheduler run during simulation
+    /**
+     * Feeds the watchdog, affirming that the motors haven't gone haywire.
+     */
+    public void safetyFeed() {
+        robotDrive.feed();
     }
 }

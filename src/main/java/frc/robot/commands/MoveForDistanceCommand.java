@@ -3,14 +3,16 @@ package frc.robot.commands;
 import com.revrobotics.RelativeEncoder;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.TankDriveSubsystem;
-import frc.robot.subsystems.TankDriveSubsystem.DriveMotor;
+import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.DriveSubsystem.DriveMotor;
 
-public class MoveForDistance extends Command {
+public class MoveForDistanceCommand extends Command {
     //private static final double POSITION_CONVERSION_FACTOR = 18.85d;
     private static final double POSITION_CONVERSION_FACTOR = 1.0d;
 
-    private final TankDriveSubsystem tankDriveSubsystem;
+    private final RelativeEncoder[] motorEncoders;
+
+    private final DriveSubsystem driveSubsystem;
 
     private final RelativeEncoder rightMotorEncoder;
     private final RelativeEncoder leftMotorEncoder;
@@ -35,13 +37,14 @@ public class MoveForDistance extends Command {
    * @param rightMotorSpeed The speed to set the right motor at. Value should be between -1.0 and 1.0.
    * @param leftMotorSpeed The speed to set the left motor at. Value should be between -1.0 and 1.0.
    */
-    public MoveForDistance(TankDriveSubsystem subsystem, double distance, double rightMotorSpeed, double leftMotorSpeed) {
-        tankDriveSubsystem = subsystem;
+    public MoveForDistanceCommand(DriveSubsystem subsystem, double distance, double rightMotorSpeed, double leftMotorSpeed) {
+        driveSubsystem = subsystem;
+        addRequirements(subsystem);
 
         rightMotorEncoder = subsystem.getMotorEncoder(DriveMotor.RIGHTMOTOR);
         leftMotorEncoder = subsystem.getMotorEncoder(DriveMotor.LEFTMOTOR);
 
-        addRequirements(subsystem);
+        motorEncoders = new RelativeEncoder[]{rightMotorEncoder, leftMotorEncoder};
 
         this.distance = distance;
         this.rightMotorSpeed = rightMotorSpeed;
@@ -56,21 +59,19 @@ public class MoveForDistance extends Command {
         rightMotorEncoder.setPosition(0.0d);
         leftMotorEncoder.setPosition(0.0d);
 
-        tankDriveSubsystem.setMotor(DriveMotor.RIGHTMOTOR, rightMotorSpeed);
-        tankDriveSubsystem.setMotor(DriveMotor.LEFTMOTOR, leftMotorSpeed);
+        driveSubsystem.setMotor(DriveMotor.RIGHTMOTOR, rightMotorSpeed);
+        driveSubsystem.setMotor(DriveMotor.LEFTMOTOR, leftMotorSpeed);
     }
 
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
-        // Setting the speed repeatedly makes the safety watchdog happy,
-        // no other reason. Without this, it shuts down in 100ms.
-        tankDriveSubsystem.setMotor(DriveMotor.RIGHTMOTOR, rightMotorSpeed);
-        tankDriveSubsystem.setMotor(DriveMotor.LEFTMOTOR, leftMotorSpeed);
+        // Feed the safety watchdog to affirm the motors should be running.
+        driveSubsystem.safetyFeed();
 
         // Calculate the total distance traveled (of the robot, not one wheel) 
         // by averaging each motor's distance.
-        double distance_traveled = calculateDistanceTraveled(new DriveMotor[] {DriveMotor.RIGHTMOTOR, DriveMotor.LEFTMOTOR});
+        double distance_traveled = calculateDistanceTraveled(motorEncoders);
         if (distance_traveled >= distance)
         {
             ended = true;
@@ -80,7 +81,7 @@ public class MoveForDistance extends Command {
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
-        tankDriveSubsystem.stopAllMotors();
+        driveSubsystem.stopAllMotors();
     }
 
     // Returns true when the command should end.
@@ -89,15 +90,13 @@ public class MoveForDistance extends Command {
         return ended;
     }
 
-    private double calculateDistanceTraveled(DriveMotor[] driveMotors) {
-        /*
+    private double calculateDistanceTraveled(RelativeEncoder[] motorEncoders) {
         double total_distance = 0.0d;
-        for (DriveMotor driveMotor : driveMotors) {
-            total_distance += tankDriveSubsystem.getMotorEncoder(driveMotor).getPosition() * POSITION_CONVERSION_FACTOR;
+        for (RelativeEncoder encoder : motorEncoders) {
+            total_distance += encoder.getPosition() * POSITION_CONVERSION_FACTOR;
         }
-        return total_distance / driveMotors.length;
-        */
+        return total_distance / motorEncoders.length;
         
-        return leftMotorEncoder.getPosition();
+        //return leftMotorEncoder.getPosition();
     }
 }
