@@ -4,49 +4,21 @@
 
 package frc.robot;
 
-import java.io.File;
-import java.lang.reflect.Array;
-import java.util.List;
-
-import org.littletonrobotics.junction.LogFileUtil;
-import org.littletonrobotics.junction.LoggedRobot;
-import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.networktables.NT4Publisher;
-import org.littletonrobotics.junction.wpilog.WPILOGReader;
-import org.littletonrobotics.junction.wpilog.WPILOGWriter;
-import org.photonvision.PhotonCamera;
-import org.photonvision.targeting.PhotonPipelineResult;
-import org.photonvision.targeting.PhotonTrackedTarget;
-
-import com.google.flatbuffers.Constants;
-import com.studica.frc.AHRS;
-import com.studica.frc.AHRS.NavXComType;
-
-import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.constants.DriveConstants;
-import frc.robot.constants.OperatorConstants;
-import frc.robot.subsystems.swerve.SwerveSubsystem;
-import frc.robot.utils.Debug;
-import frc.robot.utils.XboxControllerWrapper;
-import swervelib.SwerveInputStream;
 
 /**
- * Where the robot container is instantiated and the different states (teleop,
- * auto, disabled) are managed
+ * The methods in this class are called automatically corresponding to each
+ * mode, as described in
+ * the TimedRobot documentation. If you change the name of this class or the
+ * package after creating
+ * this project, you must also update the Main.java file in the project.
  */
-public class Robot extends LoggedRobot {
+public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
-  // private final RobotContainer m_robotContainer;
-
-  PhotonCamera camera = new PhotonCamera("front");
-
-  final XboxControllerWrapper driverXbox = new XboxControllerWrapper(0);
-  private final SwerveSubsystem driveSubsystem = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
-      "swerve"));
+  private final RobotContainer m_robotContainer;
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -54,28 +26,10 @@ public class Robot extends LoggedRobot {
    * initialization code.
    */
   public Robot() {
-    // Logger.recordMetadata("ProjectName", "949 Reefscape");
-    // if (isReal()) {
-    // Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
-    // Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
-    // // new PowerDistribution(1, ModuleType.kRev); // Enables power distribution
-    // // logging
-    // } else {
-    // setUseTiming(false); // Run as fast as possible
-    // String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from
-    // AdvantageScope (or prompt the user)
-    // Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
-    // Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath,
-    // "_sim"))); // Save outputs to a new log
-    // }
-
-    // Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
-    // Logger.start();
-
-    // // Instantiate our RobotContainer. This will perform all our button bindings,
-    // // and put our
-    // // autonomous chooser on the dashboard.
-    // m_robotContainer = new RobotContainer();
+    // Instantiate our RobotContainer. This will perform all our button bindings,
+    // and put our
+    // autonomous chooser on the dashboard.
+    m_robotContainer = new RobotContainer();
   }
 
   /**
@@ -97,9 +51,6 @@ public class Robot extends LoggedRobot {
     // and running subsystem periodic() methods. This must be called from the
     // robot's periodic
     // block in order for anything in the Command-based framework to work.
-
-    // Debug.debugXboxController();
-
     CommandScheduler.getInstance().run();
   }
 
@@ -118,12 +69,6 @@ public class Robot extends LoggedRobot {
    */
   @Override
   public void autonomousInit() {
-    // m_autonomousCommand = m_robotContainer.getAutonomousCommand();
-
-    // schedule the autonomous command (example)
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.schedule();
-    }
   }
 
   /** This function is called periodically during autonomous. */
@@ -145,43 +90,6 @@ public class Robot extends LoggedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    final double[] turn = { -driverXbox.getRightX() };
-
-    SwerveInputStream driveAngularSpeed = SwerveInputStream.of(driveSubsystem.getSwerveDrive(),
-        () -> driverXbox.getLeftY(),
-        () -> driverXbox.getLeftX())
-        .withControllerRotationAxis(this::getTurn); // Use the array element
-
-    Command driveAngularSpeedCommand = driveSubsystem.driveFieldOriented(driveAngularSpeed);
-    driveSubsystem.setDefaultCommand(driveAngularSpeedCommand);
-  }
-
-  private Double getTurn() {
-    double turnResult = driverXbox.getRightX();
-
-    boolean targetVisible = false;
-    double targetYaw = 0.0;
-
-    var results = camera.getAllUnreadResults();
-    if (!results.isEmpty()) {
-      var result = results.get(results.size() - 1);
-      if (result.hasTargets()) {
-        for (var target : result.getTargets()) {
-          if (target.getFiducialId() == 1) {
-            targetYaw = target.getYaw();
-            targetVisible = true;
-          }
-        }
-      }
-    }
-
-    if (driverXbox.a().getAsBoolean() && targetVisible) {
-      turnResult = 1.0 * targetYaw * 0.025; // Modify the array element
-    }
-
-    System.out.println(turnResult);
-
-    return -turnResult;
   }
 
   @Override

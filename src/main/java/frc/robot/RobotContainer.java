@@ -14,6 +14,8 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.subsystems.swerve.*;
+import frc.robot.subsystems.vision.VisionSubsystem;
+import frc.robot.utils.TriggerUtil;
 import frc.robot.utils.XboxControllerWrapper;
 import swervelib.SwerveInputStream;
 import frc.robot.constants.*;
@@ -26,6 +28,8 @@ public class RobotContainer {
   final XboxControllerWrapper driverXbox = new XboxControllerWrapper(0);
   private final SwerveSubsystem driveSubsystem = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
       "swerve"));
+
+  private final VisionSubsystem visionSubsystem = new VisionSubsystem();
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -73,83 +77,26 @@ public class RobotContainer {
   }
 
   private void setDefaultDriveBehavior() {
-    SwerveInputStream driveDirectAngle = SwerveInputStream.of(driveSubsystem.getSwerveDrive(),
-        () -> driverXbox.getLeftY(),
-        () -> driverXbox.getLeftX())
-        .withControllerHeadingAxis(
-            () -> -driverXbox.getRightX(),
-            () -> -driverXbox.getRightY())
-        .headingWhile(true)
-        .allianceRelativeControl(true)
-        .deadband(OperatorConstants.kDeadzone);
+    Command driveDirectAngleCommand = driveSubsystem.driveDirectAngleCommand(driverXbox);
+    Command driveAngularSpeedCommand = driveSubsystem.driveAngularSpeedCommand(driverXbox);
 
-    SwerveInputStream driveAngularSpeed = SwerveInputStream.of(driveSubsystem.getSwerveDrive(),
-        () -> driverXbox.getLeftY(),
-        () -> driverXbox.getLeftX())
-        .withControllerRotationAxis(() -> -driverXbox.getRightX())
-        .deadband(OperatorConstants.kDeadzone);
-
-    Command driveDirectAngleCommand = driveSubsystem.driveFieldOriented(driveDirectAngle);
-    Command driveAngularSpeedCommand = driveSubsystem.driveFieldOriented(driveAngularSpeed);
+    Command aimAtTarget = driveSubsystem.aimAtTarget(driverXbox, visionSubsystem, 1);
 
     driveSubsystem.setDefaultCommand(driveAngularSpeedCommand);
 
-    driverXbox.rightTrigger().onFalse(new InstantCommand(() -> {
-      System.out.println("driveAngularSpeed");
-      driveSubsystem.setDefaultCommand(driveAngularSpeedCommand);
-    }, driveSubsystem));
+    // TriggerUtil.holdChangeDefault(driverXbox.rightTrigger(), driveSubsystem,
+    //     driveAngularSpeedCommand,
+    //     driveDirectAngleCommand);
 
-    driverXbox.rightTrigger().onTrue(new InstantCommand(() -> {
-      System.out.println("driveDirectAngle");
-      driveSubsystem.setDefaultCommand(driveDirectAngleCommand);
-    }, driveSubsystem));
+    // TriggerUtil.holdCHangeDefault(driverXbox.b(), driveSubsystem,
+    // driveAngularSpeedCommand, aimAtTarget);
+
+    TriggerUtil.holdChangeDefault(driverXbox.b(), driveSubsystem,
+        driveAngularSpeedCommand,
+        aimAtTarget);
 
     // driverXbox.b().whileTrue(
     // driveSubsystem.driveToPose(
     // new Pose2d(new Translation2d(4, 4), Rotation2d.fromDegrees(0))));
   }
-
-  // private void aimAtTarget() {
-  // // Calculate drivetrain commands from Joystick values
-  // double forward = -driverXbox.getLeftY() *
-  // DriveConstants.kMaxSpeedMetersPerSec;
-  // double strafe = -driverXbox.getLeftX() *
-  // DriveConstants.kMaxSpeedMetersPerSec;
-  // double turn = -driverXbox.getRightX() * DriveConstants.kMaxSpeedMetersPerSec;
-
-  // // Read in relevant data from the Camera
-  // boolean targetVisible = false;
-  // dnuble targetYaw = 0.0;
-  // var results = camera.getAllUnreadResults();
-  // if (!results.isEmpty()) {
-  // // Camera processed a new frame since last
-  // // Get the last one in the list.
-  // var result = results.get(results.size() - 1);
-  // if (result.hasTargets()) {
-  // // At least one AprilTag was seen by the camera
-  // for (var target : result.getTargets()) {
-  // if (target.getFiducialId() == 7) {
-  // // Found Tag 7, record its information
-  // targetYaw = target.getYaw();
-  // targetVisible = true;
-  // }
-  // }
-  // }
-  // }
-
-  // // Auto-align when requested
-  // if (driverXbox.getAButton() && targetVisible) {
-  // // Driver wants auto-alignment to tag 7
-  // // And, tag 7 is in sight, so we can turn toward it.
-  // // Override the driver's turn command with an automatic one that turns toward
-  // // the tag.
-  // turn = -1.0 * targetYaw * VISION_TURN_kP * Constants.Swerve.kMaxAngularSpeed;
-  // }
-
-  // // Command drivetrain motors based on target speeds
-  // drivetrain.drive(forward, strafe, turn);
-
-  // // Put debug information to the dashboard
-  // SmartDashboard.putBoolean("Vision Target Visible", targetVisible);
-  // }
 }

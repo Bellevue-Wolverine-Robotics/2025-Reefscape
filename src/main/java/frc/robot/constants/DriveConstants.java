@@ -72,5 +72,8 @@ public final class DriveConstants {
 					2),
 			kTrackWidthMeters);
 
-	double π = 3.1415926535897932384;
+	// Other
+
+	// should be inbetween -0.15 and 0.15
+	public static final double kAngularVelocityCompensation = -0.1;
 }

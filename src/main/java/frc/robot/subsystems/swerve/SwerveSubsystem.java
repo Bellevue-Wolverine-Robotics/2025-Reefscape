@@ -35,9 +35,14 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.constants.*;
+import frc.robot.subsystems.vision.AprilTagStruct;
+import frc.robot.subsystems.vision.VisionSubsystem;
+import frc.robot.utils.XboxControllerWrapper;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -48,6 +53,7 @@ import org.json.simple.parser.ParseException;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
 import swervelib.SwerveDriveTest;
+import swervelib.SwerveInputStream;
 import swervelib.math.SwerveMath;
 import swervelib.parser.SwerveControllerConfiguration;
 import swervelib.parser.SwerveDriveConfiguration;
@@ -105,10 +111,9 @@ public class SwerveSubsystem extends SubsystemBase {
       throw new RuntimeException(e);
     }
 
-    // swerveDrive.setCosineCompensator(true);
     swerveDrive.setModuleEncoderAutoSynchronize(false, 1);
     swerveDrive.setChassisDiscretization(true, 0.05);
-    swerveDrive.setAngularVelocityCompensation(true, true, -0.1);
+    swerveDrive.setAngularVelocityCompensation(true, true, DriveConstants.kAngularVelocityCompensation);
     // if (visionDriveTest) {
     // // setupPhotonVision();
     // // Stop the odometry thread if we are using vision that way we can
@@ -708,5 +713,67 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   public SwerveDrive getSwerveDrive() {
     return swerveDrive;
+  }
+
+  // COMMANDS
+  // ----------------------------------------------------------------------------------------------------
+
+  public Command aimAtTarget(XboxControllerWrapper xboxController, VisionSubsystem visionSubsystem, int ID) {
+
+    DoubleSupplier turnSupplier = () -> {
+      AprilTagStruct aprilTag = visionSubsystem.getTargetID(ID);
+
+      double turnResult = xboxController.getRightX();
+
+      if (aprilTag.targetVisible) {
+        turnResult = -1.0 * aprilTag.yaw * 0.025;
+      }
+
+      // System.out.println(aprilTag.targetVisible);
+
+      return turnResult;
+    };
+
+    SwerveInputStream driveAngularSpeed = this.driveAngularSpeed(xboxController)
+        .withControllerRotationAxis(turnSupplier);
+
+    Command driveAngularSpeedCommand = this.driveFieldOriented(driveAngularSpeed);
+    return driveAngularSpeedCommand;
+  }
+
+  public Command driveAngularSpeedCommand(XboxControllerWrapper xboxController) {
+    System.out.println(xboxController.getLeftX());
+    return this.driveFieldOriented(this.driveAngularSpeed(xboxController));
+  }
+
+  public Command driveDirectAngleCommand(XboxControllerWrapper xboxController) {
+    return this.driveFieldOriented(this.driveDirectAngle(xboxController));
+  }
+
+  public Command testCommand() {
+    System.out.print("  lajfl;jsad;fljaslk;djf");
+    return new InstantCommand();
+  }
+
+  // SWERVE INPUT STREAMS (CHASSIS SPEEDS)
+  // ----------------------------------------------------------------------------------------------------
+
+  public SwerveInputStream driveAngularSpeed(XboxControllerWrapper xboxController) {
+    return SwerveInputStream.of(this.getSwerveDrive(),
+        () -> xboxController.getLeftY(),
+        () -> xboxController.getLeftX())
+        .withControllerRotationAxis(() -> -xboxController.getRightX());
+  }
+
+  public SwerveInputStream driveDirectAngle(XboxControllerWrapper xboxController) {
+    return SwerveInputStream.of(this.getSwerveDrive(),
+        () -> xboxController.getLeftY(),
+        () -> xboxController.getLeftX())
+        .withControllerHeadingAxis(
+            () ->  xboxController.getRightX(),
+            () -> -xboxController.getRightY())
+        .headingWhile(true)
+        .allianceRelativeControl(true)
+        .deadband(OperatorConstants.kDeadzone);
   }
 }
