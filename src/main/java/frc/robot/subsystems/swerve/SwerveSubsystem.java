@@ -89,6 +89,8 @@ public class SwerveSubsystem extends SubsystemBase {
     // vision.updatePoseEstimation(swerveDrive);
     // }
 
+    // Torsten was here
+
     posePublisher.set(this.getPose());
     moduleStatePublisher.set(this.swerveDrive.kinematics.toSwerveModuleStates(getFieldVelocity()));
   }
@@ -770,7 +772,7 @@ public class SwerveSubsystem extends SubsystemBase {
         () -> xboxController.getLeftY(),
         () -> xboxController.getLeftX())
         .withControllerHeadingAxis(
-            () ->  xboxController.getRightX(),
+            () -> xboxController.getRightX(),
             () -> -xboxController.getRightY())
         .headingWhile(true)
         .allianceRelativeControl(true)
