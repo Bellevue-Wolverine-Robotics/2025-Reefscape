@@ -6,6 +6,8 @@ package frc.robot.subsystems.swerve;
 
 import static edu.wpi.first.units.Units.Meter;
 
+
+import com.google.flatbuffers.Constants;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.commands.PathfindingCommand;
@@ -45,10 +47,13 @@ import frc.robot.utils.XboxControllerWrapper;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.Arrays;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
+import frc.robot.constants.*;
 import org.json.simple.parser.ParseException;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
@@ -720,24 +725,46 @@ public class SwerveSubsystem extends SubsystemBase {
   // COMMANDS
   // ----------------------------------------------------------------------------------------------------
 
-  public Command aimAtTarget(XboxControllerWrapper xboxController, VisionSubsystem visionSubsystem, int ID) {
+  // public Command aimAtTarget(XboxControllerWrapper xboxController, VisionSubsystem visionSubsystem, int ID) {
+  //   DoubleSupplier turnSupplier = () -> {
+  //     AprilTagStruct aprilTag = visionSubsystem.getTargetID(ID);
 
+  //     double turnResult = xboxController.getRightX();
+
+  //     if (aprilTag.targetVisible) {
+  //       turnResult = -1.0 * aprilTag.yaw * VisionConstants.kVisionTurnkP;
+  //     }
+
+  //     // System.out.println(aprilTag.targetVisible);
+
+  //     return turnResult;
+  //   };
+
+  //   SwerveInputStream driveAngularSpeed = this.driveAngularSpeed(xboxController)
+  //       .withControllerRotationAxis(turnSupplier);
+
+  //   Command driveAngularSpeedCommand = this.driveFieldOriented(driveAngularSpeed);
+  //   return driveAngularSpeedCommand;
+  }
+
+  //Still need to return both forward and turn results
+  public Command aimAtTargetAndRange(XboxControllerWrapper xboxController, VisionSubsystem visionSubsystem, int ID) {
     DoubleSupplier turnSupplier = () -> {
       AprilTagStruct aprilTag = visionSubsystem.getTargetID(ID);
-
+      double forwardResult = xboxController.getRightY();
       double turnResult = xboxController.getRightX();
 
+
       if (aprilTag.targetVisible) {
-        turnResult = -1.0 * aprilTag.yaw * 0.025;
+        forwardResult = -1.0 * aprilTag.yaw * VisionConstants.kVisionTurnkP;
       }
 
-      // System.out.println(aprilTag.targetVisible);
-
-      return turnResult;
+      //Return both
+      return new double[] {forwardResult, turnResult}; 
     };
 
     SwerveInputStream driveAngularSpeed = this.driveAngularSpeed(xboxController)
-        .withControllerRotationAxis(turnSupplier);
+    .withControllerRotationAxis(turnSupplier);
 
     Command driveAngularSpeedCommand = this.driveFieldOriented(driveAngularSpeed);
     return driveAngularSpeedCommand;
@@ -750,11 +777,6 @@ public class SwerveSubsystem extends SubsystemBase {
 
   public Command driveDirectAngleCommand(XboxControllerWrapper xboxController) {
     return this.driveFieldOriented(this.driveDirectAngle(xboxController));
-  }
-
-  public Command testCommand() {
-    System.out.print("  lajfl;jsad;fljaslk;djf");
-    return new InstantCommand();
   }
 
   // SWERVE INPUT STREAMS (CHASSIS SPEEDS)
