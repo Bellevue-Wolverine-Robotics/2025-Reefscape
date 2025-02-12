@@ -80,7 +80,7 @@ public class RobotContainer {
     Command driveDirectAngleCommand = driveSubsystem.driveDirectAngleCommand(driverXbox);
     Command driveAngularSpeedCommand = driveSubsystem.driveAngularSpeedCommand(driverXbox);
 
-    Command aimAtTarget = driveSubsystem.aimAtTarget(driverXbox, visionSubsystem, 1);
+    Command aimAtTarget = driveSubsystem.aimAtTargetAndRange(driverXbox, visionSubsystem, 1);
 
     driveSubsystem.setDefaultCommand(driveAngularSpeedCommand);
 

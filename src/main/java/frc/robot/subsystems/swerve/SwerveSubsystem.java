@@ -745,11 +745,9 @@ public class SwerveSubsystem extends SubsystemBase {
 
   //   Command driveAngularSpeedCommand = this.driveFieldOriented(driveAngularSpeed);
   //   return driveAngularSpeedCommand;
-  }
 
-  //Still need to return both forward and turn results
   public Command aimAtTargetAndRange(XboxControllerWrapper xboxController, VisionSubsystem visionSubsystem, int ID) {
-    DoubleSupplier turnSupplier = () -> {
+    DoubleSupplier forwardSupplier = () -> {
       AprilTagStruct aprilTag = visionSubsystem.getTargetID(ID);
       double forwardResult = xboxController.getRightY();
       double turnResult = xboxController.getRightX();
@@ -760,8 +758,13 @@ public class SwerveSubsystem extends SubsystemBase {
       }
 
       //Return both
-      return new double[] {forwardResult, turnResult}; 
+      return forwardResult;
     };
+
+    DoubleSupplier turnSupplier = () -> {
+      double turnResult = xboxController.getRightX();
+      return turnResult;  // Return turning motion only
+  };
 
     SwerveInputStream driveAngularSpeed = this.driveAngularSpeed(xboxController)
     .withControllerRotationAxis(turnSupplier);
