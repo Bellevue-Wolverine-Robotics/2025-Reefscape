@@ -31,7 +31,7 @@ public final class DriveConstants {
 	public static final int kCurrentLimit = 20;
 	public static final int kVoltageCompensation = 12;
 
-	public static final double kMaxSpeedMetersPerSec = 3;
+	public static final double kMaxSpeedMetersPerSec = 1;
 
 	public static final DCMotor gearbox = DCMotor.getCIM(2);
 

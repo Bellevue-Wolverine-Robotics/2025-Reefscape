@@ -6,47 +6,49 @@ import frc.robot.Robot;
 import frc.robot.constants.OperatorConstants;
 
 public class XboxControllerWrapper extends CommandXboxController {
-  public XboxControllerWrapper(int port) {
+  private final boolean inverted;
+
+  public XboxControllerWrapper(int port, boolean inverted) {
     super(port);
+    this.inverted = inverted;
   }
 
   @Override
   public double getLeftX() {
-    if (Robot.isSimulation()) {
-      return -this.getRawAxis(OperatorConstants.kControllerLeftX);
-    }
-    return super.getLeftX();
+    double value = Robot.isSimulation() 
+        ? this.getRawAxis(OperatorConstants.kControllerLeftX)
+        : super.getLeftX();
+    return inverted ? -value : value;
   }
 
   @Override
   public double getLeftY() {
-    if (Robot.isSimulation()) {
-      return -this.getRawAxis(OperatorConstants.kControllerLeftY);
-    }
-    return super.getLeftY();
+    double value = Robot.isSimulation() 
+        ? this.getRawAxis(OperatorConstants.kControllerLeftY)
+        : super.getLeftY();
+    return inverted ? -value : value;
   }
 
   @Override
   public double getRightX() {
-    if (Robot.isSimulation()) {
-      return this.getRawAxis(OperatorConstants.kControllerRightX);
-    }
-    return super.getRightX();
+    double value = Robot.isSimulation() 
+        ? this.getRawAxis(OperatorConstants.kControllerRightX)
+        : super.getRightX();
+    return inverted ? -value : value;
   }
 
   @Override
   public double getRightY() {
-    if (Robot.isSimulation()) {
-      return this.getRawAxis(OperatorConstants.kControllerRightY);
-    }
-    return super.getRightY();
+    double value = Robot.isSimulation() 
+        ? this.getRawAxis(OperatorConstants.kControllerRightY)
+        : super.getRightY();
+    return inverted ? -value : value;
   }
 
   @Override
   public Trigger rightTrigger() {
-    if (Robot.isSimulation()) {
-      return this.button(OperatorConstants.kControllerRightTrigger);
-    }
-    return super.rightTrigger();
+    return Robot.isSimulation() 
+        ? this.button(OperatorConstants.kControllerRightTrigger)
+        : super.rightTrigger();
   }
 }

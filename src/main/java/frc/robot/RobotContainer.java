@@ -25,7 +25,7 @@ import frc.robot.constants.*;
  * button mappings are declared.
  */
 public class RobotContainer {
-  final XboxControllerWrapper driverXbox = new XboxControllerWrapper(0);
+  final XboxControllerWrapper driverXbox = new XboxControllerWrapper(0, false);
   private final SwerveSubsystem driveSubsystem = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
       "swerve"));
 
