@@ -787,18 +787,18 @@ public class SwerveSubsystem extends SubsystemBase {
 
   public SwerveInputStream driveAngularSpeed(XboxControllerWrapper xboxController) {
     return SwerveInputStream.of(this.getSwerveDrive(),
-        () -> xboxController.getLeftY(),
-        () -> xboxController.getLeftX())
-        .withControllerRotationAxis(() -> -xboxController.getRightX());
+        () -> -xboxController.getLeftY(),
+        () -> -xboxController.getLeftX())
+        .withControllerRotationAxis(() -> xboxController.getRightX());
   }
 
   public SwerveInputStream driveDirectAngle(XboxControllerWrapper xboxController) {
     return SwerveInputStream.of(this.getSwerveDrive(),
-        () -> xboxController.getLeftY(),
-        () -> xboxController.getLeftX())
+        () -> -xboxController.getLeftY(),
+        () -> -xboxController.getLeftX())
         .withControllerHeadingAxis(
-            () -> xboxController.getRightX(),
-            () -> -xboxController.getRightY())
+            () -> -xboxController.getRightX(),
+            () -> xboxController.getRightY())
         .headingWhile(true)
         .allianceRelativeControl(true)
         .deadband(OperatorConstants.kDeadzone);
