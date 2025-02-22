@@ -1,11 +1,6 @@
 package frc.robot;
 
-import java.io.File;
-
-import org.photonvision.PhotonCamera;
-
 import com.pathplanner.lib.auto.NamedCommands;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -13,21 +8,25 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import frc.robot.constants.*;
 import frc.robot.subsystems.swerve.*;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.utils.TriggerUtil;
 import frc.robot.utils.XboxControllerWrapper;
+import java.io.File;
+import org.photonvision.PhotonCamera;
 import swervelib.SwerveInputStream;
-import frc.robot.constants.*;
 
 /**
  * Where most of the structure of the robot, including subsystems, commands, and
  * button mappings are declared.
  */
 public class RobotContainer {
+
   final XboxControllerWrapper driverXbox = new XboxControllerWrapper(0, false);
-  private final SwerveSubsystem driveSubsystem = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
-      "swerve"));
+  private final SwerveSubsystem driveSubsystem = new SwerveSubsystem(
+    new File(Filesystem.getDeployDirectory(), "swerve")
+  );
 
   private final VisionSubsystem visionSubsystem = new VisionSubsystem();
 
@@ -77,10 +76,26 @@ public class RobotContainer {
   }
 
   private void setDefaultDriveBehavior() {
-    Command driveDirectAngleCommand = driveSubsystem.driveDirectAngleCommand(driverXbox);
-    Command driveAngularSpeedCommand = driveSubsystem.driveAngularSpeedCommand(driverXbox);
+    Command driveDirectAngleCommand = driveSubsystem.driveDirectAngleCommand(
+      driverXbox
+    );
+    Command driveAngularSpeedCommand = driveSubsystem.driveAngularSpeedCommand(
+      driverXbox
+    );
 
-    Command aimAtTarget = driveSubsystem.aimAtTargetAndRange(driverXbox, visionSubsystem, 1);
+    Command aimAtTargetCommand = driveSubsystem.aimAtTargetCommand(
+      driverXbox,
+      visionSubsystem,
+      1
+    );
+
+    Command aimAtTargetAndRangeCommand =
+      driveSubsystem.aimAtTargetAndRangeCommand(
+        driverXbox,
+        visionSubsystem,
+        1,
+        2.5
+      );
 
     driveSubsystem.setDefaultCommand(driveAngularSpeedCommand);
 
@@ -88,13 +103,19 @@ public class RobotContainer {
     //     driveAngularSpeedCommand,
     //     driveDirectAngleCommand);
 
-    // TriggerUtil.holdCHangeDefault(driverXbox.b(), driveSubsystem,
-    // driveAngularSpeedCommand, aimAtTarget);
+    TriggerUtil.holdChangeDefault(
+      driverXbox.b(),
+      driveSubsystem,
+      driveAngularSpeedCommand,
+      aimAtTargetCommand
+    );
 
-    TriggerUtil.holdChangeDefault(driverXbox.b(), driveSubsystem,
-        driveAngularSpeedCommand,
-        aimAtTarget);
-
+    TriggerUtil.holdChangeDefault(
+      driverXbox.a(),
+      driveSubsystem,
+      driveAngularSpeedCommand,
+      aimAtTargetAndRangeCommand
+    );
     // driverXbox.b().whileTrue(
     // driveSubsystem.driveToPose(
     // new Pose2d(new Translation2d(4, 4), Rotation2d.fromDegrees(0))));

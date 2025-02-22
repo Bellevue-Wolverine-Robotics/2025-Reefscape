@@ -1,17 +1,21 @@
 package frc.robot.subsystems.vision;
 
-import org.photonvision.PhotonCamera;
-import org.photonvision.PhotonUtils;
-
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.VisionConstants;
+import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonUtils;
 
 public class VisionSubsystem extends SubsystemBase {
+
   private PhotonCamera frontCamera;
+  private AprilTagFieldLayout fieldLayout;
 
   public VisionSubsystem() {
     frontCamera = new PhotonCamera(VisionConstants.kFrontCamera);
+    fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
   }
 
   /**
@@ -31,40 +35,23 @@ public class VisionSubsystem extends SubsystemBase {
         for (var target : result.getTargets()) {
           if (target.getFiducialId() == 1) {
             aprilTagResult.yaw = target.getYaw();
-            aprilTagResult.targetVisible = true;
-          }
-        }
-      }
-    }
-
-    return aprilTagResult;
-  }
-
-  public AprilTagStruct getTargetID2(int id) {
-    AprilTagStruct aprilTagResult = new AprilTagStruct();
-            double targetRange = 0.0;
-
-    var results = frontCamera.getAllUnreadResults();
-
-    if (!results.isEmpty()) {
-      var result = results.get(results.size() - 1);
-      if (result.hasTargets()) {
-        for (var target : result.getTargets()) {
-          if (target.getFiducialId() == 1) {
-            aprilTagResult.yaw = target.getYaw();
-
-            targetRange =
-            PhotonUtils.calculateDistanceToTargetMeters(
-            0.5, // Check CAD
-            1.435, //Made constants for camera and target height, idk how to put it in this line...
-            Units.degreesToRadians(VisionConstants.kDegreesToRadians), // Check CAD
-            Units.degreesToRadians(target.getPitch()));
+            aprilTagResult.distance =
+              PhotonUtils.calculateDistanceToTargetMeters(
+                // VisionConstants.kFrontCamHeightMeters,
+                0.2032,
+                // fieldLayout.getTagPose(id).get().getZ(),
+                0.762,
+                VisionConstants.kFrontCamRotRadians,
+                Units.degreesToRadians(target.getPitch())
+              );
+            // System.out.println("distance from cam: " + aprilTagResult.distance);
 
             aprilTagResult.targetVisible = true;
           }
         }
       }
     }
+
     return aprilTagResult;
   }
 }
