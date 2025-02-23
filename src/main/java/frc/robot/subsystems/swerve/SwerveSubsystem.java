@@ -19,14 +19,21 @@ import com.pathplanner.lib.util.swerve.SwerveSetpoint;
 import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
@@ -40,6 +47,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.constants.*;
 import frc.robot.subsystems.vision.AprilTagStruct;
+import frc.robot.subsystems.vision.VisionSim;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.utils.XboxControllerWrapper;
 import java.io.File;
@@ -49,6 +57,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import org.json.simple.parser.ParseException;
+import org.photonvision.targeting.PhotonTrackedTarget;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
 import swervelib.SwerveDriveTest;
@@ -62,6 +71,9 @@ import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 
 public class SwerveSubsystem extends SubsystemBase {
 
+  // --------------------------------------------------------------------------------
+  // SwerveInputStream Helpers and Commands
+  // --------------------------------------------------------------------------------
   /**
    * Swerve drive object.
    */
@@ -86,6 +98,8 @@ public class SwerveSubsystem extends SubsystemBase {
         SwerveModuleState.struct
       )
       .publish();
+
+  private double targetRange = 1;
 
   @Override
   public void periodic() {
@@ -131,6 +145,7 @@ public class SwerveSubsystem extends SubsystemBase {
       true,
       DriveConstants.kAngularVelocityCompensation
     );
+    // this.visionSubsystem = visionSubsystem;
     // if (visionDriveTest) {
     // // setupPhotonVision();
     // // Stop the odometry thread if we are using vision that way we can
@@ -554,7 +569,8 @@ public class SwerveSubsystem extends SubsystemBase {
     double rotation,
     boolean fieldRelative
   ) {
-    swerveDrive.drive(translation, rotation, fieldRelative, false); // Open loop is disabled since it shouldn't be used most of the time.
+    swerveDrive.drive(translation, rotation, fieldRelative, false); // Open loop is disabled since it shouldn't be used
+    // most of the time.
   }
 
   /**
@@ -828,55 +844,14 @@ public class SwerveSubsystem extends SubsystemBase {
   // COMMANDS
   // ----------------------------------------------------------------------------------------------------
 
-  public Command aimAtTargetCommand(
-    XboxControllerWrapper xboxController,
-    VisionSubsystem visionSubsystem,
-    int ID
-  ) {
-    SwerveInputStream aimAtTargetSpeeds = aimAtTargetSpeeds(
-      xboxController,
-      visionSubsystem,
-      ID
-    );
+  // public Command aimAtTargetCommand(
+  //     XboxControllerWrapper xboxController,
+  //     int ID) {
+  //   SwerveInputStream aimAtTargetSpeeds = aimAtTargetSpeeds(xboxController, ID);
 
-    Command resultCommand = this.driveFieldOriented(aimAtTargetSpeeds);
-    return resultCommand;
-  }
-
-  public Command aimAtTargetAndRangeCommand(
-    XboxControllerWrapper xboxController,
-    VisionSubsystem visionSubsystem,
-    int targetID,
-    double targetRange
-  ) {
-    return run(() -> {
-      // Retrieve vision target info
-      AprilTagStruct tag = visionSubsystem.getTargetID(targetID);
-      double forward = 0;
-      double strafe = xboxController.getLeftX();
-      double rotation = 0;
-
-      if (tag.targetVisible) {
-        forward = -(targetRange - tag.distance) * 0.5;
-        rotation = -tag.yaw * VisionConstants.kVisionTurnkP;
-      } else {
-        // Fall back to controller input when target is lost
-        forward = xboxController.getLeftY();
-        rotation = xboxController.getRightX();
-      }
-
-      System.out.println("FORWRARD " + forward);
-      System.out.println("TURN" + rotation);
-
-      ChassisSpeeds speeds = ChassisSpeeds.fromRobotRelativeSpeeds(
-        forward,
-        strafe,
-        rotation,
-        getHeading()
-      );
-      driveFieldOriented(speeds);
-    });
-  }
+  //   Command resultCommand = this.driveFieldOriented(aimAtTargetSpeeds);
+  //   return resultCommand;
+  // }
 
   public Command driveAngularSpeedCommand(
     XboxControllerWrapper xboxController
@@ -898,7 +873,7 @@ public class SwerveSubsystem extends SubsystemBase {
       this.getSwerveDrive(),
       () -> -xboxController.getLeftY(),
       () -> -xboxController.getLeftX()
-    ).withControllerRotationAxis(() -> xboxController.getRightX());
+    ).withControllerRotationAxis(() -> -xboxController.getRightX());
   }
 
   public SwerveInputStream driveDirectAngle(
@@ -917,21 +892,17 @@ public class SwerveSubsystem extends SubsystemBase {
       .allianceRelativeControl(true)
       .deadband(OperatorConstants.kDeadzone);
   }
+  // public SwerveInputStream aimAtTargetSpeeds(
+  //     XboxControllerWrapper xboxController,
+  //     int id) {
+  //   DoubleSupplier turnSupplier = () -> {
+  //     AprilTagStruct tag = visionSubsystem.getTargetID(id);
+  //     return tag.targetVisible
+  //         ? -tag.yaw * VisionConstants.kVisionTurnkP
+  //         : xboxController.getRightX();
+  //   };
 
-  public SwerveInputStream aimAtTargetSpeeds(
-    XboxControllerWrapper xboxController,
-    VisionSubsystem visionSubsystem,
-    int id
-  ) {
-    DoubleSupplier turnSupplier = () -> {
-      AprilTagStruct tag = visionSubsystem.getTargetID(id);
-      return tag.targetVisible
-        ? -tag.yaw * VisionConstants.kVisionTurnkP
-        : xboxController.getRightX();
-    };
-
-    return driveAngularSpeed(xboxController).withControllerRotationAxis(
-      turnSupplier
-    );
-  }
+  //   return driveAngularSpeed(xboxController).withControllerRotationAxis(
+  //       turnSupplier);
+  // }
 }

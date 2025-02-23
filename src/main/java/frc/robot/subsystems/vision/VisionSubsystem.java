@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.VisionConstants;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonUtils;
+import org.photonvision.targeting.PhotonTrackedTarget;
 
 public class VisionSubsystem extends SubsystemBase {
 
@@ -32,22 +33,29 @@ public class VisionSubsystem extends SubsystemBase {
     if (!results.isEmpty()) {
       var result = results.get(results.size() - 1);
       if (result.hasTargets()) {
-        for (var target : result.getTargets()) {
-          if (target.getFiducialId() == 1) {
-            aprilTagResult.yaw = target.getYaw();
-            aprilTagResult.distance =
-              PhotonUtils.calculateDistanceToTargetMeters(
-                // VisionConstants.kFrontCamHeightMeters,
-                0.2032,
-                // fieldLayout.getTagPose(id).get().getZ(),
-                0.762,
-                VisionConstants.kFrontCamRotRadians,
-                Units.degreesToRadians(target.getPitch())
-              );
-            // System.out.println("distance from cam: " + aprilTagResult.distance);
 
-            aprilTagResult.targetVisible = true;
-          }
+        var targetOpt = result
+            .getTargets()
+            .stream()
+            .filter(t -> t.getFiducialId() == id)
+            .filter(t -> t.getPoseAmbiguity() <= 1 && t.getPoseAmbiguity() != -1)
+            .findFirst();
+        if (targetOpt.isPresent()) {
+          var target = targetOpt.get();
+
+          aprilTagResult.yaw = target.getYaw();
+          // aprilTagResult.distance = PhotonUtils.calculateDistanceToTargetMeters(
+          // // VisionConstants.kFrontCamHeightMeters,
+          // 0.2032,
+          // // fieldLayout.getTagPose(id).get().getZ(),
+          // 0.6096,
+          // VisionConstants.kFrontCamRotRadians,
+          // Units.degreesToRadians(target.getPitch())
+          // );
+          aprilTagResult.camToTarget = target.getBestCameraToTarget();
+          // System.out.println("distance from cam: " + aprilTagResult.distance);
+
+          aprilTagResult.targetVisible = true;
         }
       }
     }
