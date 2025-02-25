@@ -4,9 +4,7 @@
 
 package frc.robot;
 
-import frc.robot.commands.MoveForDistanceCommand;
-import frc.robot.commands.MoveForTimeCommand;
-import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.BoreEncoderTestSubsystem;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -21,13 +19,9 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final DriveSubsystem driveSubsystem = new DriveSubsystem();
-
-  private final MoveForTimeCommand goForwardForTwoHalfSecondCommand = new MoveForTimeCommand(driveSubsystem, 2500, 0.25d, 0.25d);
-  private final MoveForDistanceCommand goForwardHundredInches = new MoveForDistanceCommand(driveSubsystem, 10.0d, 0.050d, 0.050d);
+  private final BoreEncoderTestSubsystem encoderSubsystem = new BoreEncoderTestSubsystem();
   
   private final CommandXboxController xboxController = new CommandXboxController(0);
-  private final XboxController xboxControllerHID = xboxController.getHID();
 
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
@@ -39,9 +33,8 @@ public class RobotContainer {
     // Configure the trigger bindings
     configureBindings();
 
-    CommandScheduler.getInstance().registerSubsystem(driveSubsystem);
-    driveSubsystem.setDefaultCommand(new RunCommand(() -> 
-      driveSubsystem.arcadeDrive(xboxControllerHID.getLeftY() / 3.0d, xboxControllerHID.getLeftX() / 3.0d), driveSubsystem));
+    CommandScheduler.getInstance().registerSubsystem(encoderSubsystem);
+    //encoderSubsystem.setDefaultCommand(new RunCommand(() -> System.out.println(encoderSubsystem.getCurrentRotation())));
   }
   
   /**
@@ -54,9 +47,7 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    // Schedule command on b button pressed.
-    xboxController.b().onTrue(goForwardForTwoHalfSecondCommand);
-    xboxController.x().onTrue(goForwardHundredInches);
+
   }
 
   /**
