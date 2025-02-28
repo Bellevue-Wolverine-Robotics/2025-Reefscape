@@ -18,14 +18,16 @@ public class BoreEncoderTestSubsystem extends SubsystemBase {
     public static final double L3 = 75.0d;
     public static final double L4 = 101.0d;
 
+    public static final double RolloverThreshold = 0.75d;
+
     private double movementDir;
+    private double rotation;
     private double speed = 0.1d;
     private double position = 0.0d;
     private double targetHeight = 0.0d;
 
-    Encoder quadratureEncoder;
-    DutyCycleEncoder dutyCycleEncoder;
-    int i = 0;
+    private final DutyCycleEncoder dutyCycleEncoder;
+    private int i = 0;
 
     public BoreEncoderTestSubsystem() {
         leftPulleyMotor = new SparkMax(4, MotorType.kBrushless);
@@ -34,9 +36,7 @@ public class BoreEncoderTestSubsystem extends SubsystemBase {
         leftPulleyMotor.setInverted(true);
         rightPulleyMotor.setInverted(true);
         
-        quadratureEncoder = new Encoder(0, 1, false, CounterBase.EncodingType.k4X);
         dutyCycleEncoder = new DutyCycleEncoder(0);
-        quadratureEncoder.setDistancePerPulse(1.0d);
     }
 
     public double getCurrentRotation() {
@@ -51,19 +51,30 @@ public class BoreEncoderTestSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        i++;
-        if (i == 3)
-        {
-            //System.out.println("from periodic: " + dutyCycleEncoder.get());
-            //System.out.println("enabled: " + dutyCycleEncoder.isConnected());
-            System.out.println("from periodic: " + quadratureEncoder.getDistance());
-            i = 0;
-        }
+        IncreaseDist();
+        rotation = getCurrentRotation();
+        System.out.println(position);
     }
 
     private void setBothMotors(double speed)
     {
         leftPulleyMotor.set(speed);
         rightPulleyMotor.set(speed);
+    }
+
+    private void IncreaseDist()
+    {
+        var previousRotation = rotation;
+        var currentRotation = getCurrentRotation();
+        var change = currentRotation - previousRotation;
+        var sign = Math.signum(change);
+
+        if (Math.abs(change) >= RolloverThreshold)
+        {
+            change = (1 - (Math.abs(change))) * -sign;
+            //System.out.println("Previous: " + rotation + ", Current: " + currentRotation + ", Change: " + change);
+        }
+
+        position += change;
     }
 }
