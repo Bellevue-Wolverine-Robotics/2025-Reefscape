@@ -4,11 +4,8 @@
 
 package frc.robot;
 
-import frc.robot.subsystems.BoreEncoderTestSubsystem;
-import edu.wpi.first.wpilibj.XboxController;
+import frc.robot.subsystems.ElevatorSubsystem;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
@@ -19,9 +16,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final BoreEncoderTestSubsystem encoderSubsystem = new BoreEncoderTestSubsystem();
-  
-  private final CommandXboxController xboxController = new CommandXboxController(0);
+  private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
 
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
@@ -32,8 +27,6 @@ public class RobotContainer {
   public RobotContainer() {
     // Configure the trigger bindings
     configureBindings();
-
-    CommandScheduler.getInstance().registerSubsystem(encoderSubsystem);
     //encoderSubsystem.setDefaultCommand(new RunCommand(() -> System.out.println(encoderSubsystem.getCurrentRotation())));
   }
   
@@ -47,7 +40,7 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-
+    CommandScheduler.getInstance().registerSubsystem(elevatorSubsystem);
   }
 
   /**
