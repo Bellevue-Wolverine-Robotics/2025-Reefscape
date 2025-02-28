@@ -28,11 +28,12 @@ public class BoreEncoderTestSubsystem extends SubsystemBase {
         var previousRotation = rotation;
         var currentRotation = getCurrentRotation();
         var change = currentRotation - previousRotation;
-        var sign = Math.signum(change);
 
         if (Math.abs(change) >= RolloverThreshold) {
-            change = (1 - (Math.abs(change))) * -sign;
+            change = (1 - (Math.abs(change))) * -Math.signum(change);
         }
+
+        movementDir = Math.signum(change);
 
         position += change;
         rotation = currentRotation;
