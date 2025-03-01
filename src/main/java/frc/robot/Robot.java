@@ -1,101 +1,88 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
+/* Robot.java */
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj.DigitalInput; // Import for DigitalInput (Coral Sensor example)
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard; // Import for SmartDashboard
+import frc.robot.Subsystems.LEDModeSubsystem;
 
-/**
- * The methods in this class are called automatically corresponding to each mode, as described in
- * the TimedRobot documentation. If you change the name of this class or the package after creating
- * this project, you must also update the Main.java file in the project.
- */
 public class Robot extends TimedRobot {
-  private Command m_autonomousCommand;
+    private LEDModeSubsystem m_ledSubsystem; // LED Subsystem instance
+    private DigitalInput coralSensor; // Example: Digital Input for Coral Sensor
 
-  private final RobotContainer m_robotContainer;
+    // --- Variables for Simulated AprilTag Tracking ---
+    // In a real robot, you would get this from your vision subsystem
+    private boolean isAprilTagDetected = false;
+    private double aprilTagToggleTimer = 0; // Timer for simulating AprilTag status changes
 
-  /**
-   * This function is run when the robot is first started up and should be used for any
-   * initialization code.
-   */
-  public Robot() {
-    // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
-    // autonomous chooser on the dashboard.
-    m_robotContainer = new RobotContainer();
-  }
+    @Override
+    public void robotInit() {
+        // --- Initialize Subsystems ---
+        m_ledSubsystem = new LEDModeSubsystem(); // Create the LED Subsystem
 
-  /**
-   * This function is called every 20 ms, no matter the mode. Use this for items like diagnostics
-   * that you want ran during disabled, autonomous, teleoperated and test.
-   *
-   * <p>This runs after the mode specific periodic functions, but before LiveWindow and
-   * SmartDashboard integrated updating.
-   */
-  @Override
-  public void robotPeriodic() {
-    // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
-    // commands, running already-scheduled commands, removing finished or interrupted commands,
-    // and running subsystem periodic() methods.  This must be called from the robot's periodic
-    // block in order for anything in the Command-based framework to work.
-    CommandScheduler.getInstance().run();
-  }
+        // --- Initialize Sensors ---
+        // Initialize the digital input for the coral sensor (adjust port number if needed)
+        coralSensor = new DigitalInput(0); // Assuming Coral sensor is on Digital Input port 0, CHANGE IF DIFFERENT
 
-  /** This function is called once each time the robot enters Disabled mode. */
-  @Override
-  public void disabledInit() {}
-
-  @Override
-  public void disabledPeriodic() {}
-
-  /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
-  @Override
-  public void autonomousInit() {
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
-
-    // schedule the autonomous command (example)
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.schedule();
+        // --- Initialize SmartDashboard ---
+        SmartDashboard.putBoolean("Simulate AprilTag Tracked", isAprilTagDetected); // Button to simulate AprilTag
     }
-  }
 
-  /** This function is called periodically during autonomous. */
-  @Override
-  public void autonomousPeriodic() {}
+    @Override
+    public void robotPeriodic() {
+        // This function runs every robot cycle (approx. 20ms)
 
-  @Override
-  public void teleopInit() {
-    // This makes sure that the autonomous stops running when
-    // teleop starts running. If you want the autonomous to
-    // continue until interrupted by another command, remove
-    // this line or comment it out.
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.cancel();
+        // --- Get Sensor Readings ---
+        // Read the value from the coral sensor (it returns true if NO object is detected, false if object is close)
+        // We invert it here so that 'hasCoral' is TRUE when an object IS detected.
+        boolean coralSensorValue = !coralSensor.get(); // Invert the sensor reading to match 'hasCoral' logic
+
+        // --- Simulate AprilTag Tracking (for demonstration) ---
+        // In a real robot, you would replace this with actual vision code
+        aprilTagToggleTimer += 0.02; // Increment timer by 20ms (periodic loop time)
+        if (aprilTagToggleTimer >= 5.0) { // Toggle AprilTag status every 5 seconds for demonstration
+            isAprilTagDetected = !isAprilTagDetected; // Toggle the AprilTag status
+            SmartDashboard.putBoolean("Simulate AprilTag Tracked", isAprilTagDetected); // Update SmartDashboard
+            aprilTagToggleTimer = 0; // Reset the timer
+        }
+        isAprilTagDetected = SmartDashboard.getBoolean("Simulate AprilTag Tracked", false); // Get simulated status from SmartDashboard
+
+
+        // --- Update LED Subsystem ---
+        // Send the sensor readings to the LED subsystem to update the LED colors
+        m_ledSubsystem.setHasCoral(coralSensorValue); // Pass the coral sensor value to the LED subsystem
+        m_ledSubsystem.setIsAprilTagTracked(isAprilTagDetected); // Pass the AprilTag tracking status to LED subsystem
+
+        m_ledSubsystem.periodic(); // IMPORTANT:  Make sure to call the periodic method of the LED subsystem!
     }
-  }
 
-  /** This function is called periodically during operator control. */
-  @Override
-  public void teleopPeriodic() {}
+    @Override
+    public void disabledPeriodic() {
+        m_ledSubsystem.periodic(); // Still call periodic in disabled to make LEDs flash green when disabled
+    }
 
-  @Override
-  public void testInit() {
-    // Cancels all running commands at the start of test mode.
-    CommandScheduler.getInstance().cancelAll();
-  }
+    @Override
+    public void autonomousInit() {
+        m_ledSubsystem.stopBlinking(); // Example: Stop blinking at the start of autonomous
+    }
 
-  /** This function is called periodically during test mode. */
-  @Override
-  public void testPeriodic() {}
+    @Override
+    public void autonomousPeriodic() {
+        m_ledSubsystem.periodic(); // Call periodic in autonomous
+    }
 
-  /** This function is called once when the robot is first started up. */
-  @Override
-  public void simulationInit() {}
+    @Override
+    public void teleopInit() {
+        m_ledSubsystem.stopBlinking(); // Example: Stop blinking at the start of teleop
+    }
 
-  /** This function is called periodically whilst in simulation. */
-  @Override
-  public void simulationPeriodic() {}
+    @Override
+    public void teleopPeriodic() {
+        m_ledSubsystem.periodic(); // Call periodic in teleop
+    }
+
+    @Override
+    public void testPeriodic() {
+        m_ledSubsystem.periodic(); // Call periodic in test mode
+    }
 }
