@@ -22,6 +22,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     private double targetPosition = 0.0d;
 
     public ElevatorSubsystem() {
+        pid.setTolerance(ElevatorConstants.ERROR_TOLERANCE, ElevatorConstants.ERROR_DERIVATIVE_TOLERANCE);
         encoder.setDistancePerPulse(ElevatorConstants.DISTANCE_PER_PULSE);
     }
 
@@ -37,34 +38,16 @@ public class ElevatorSubsystem extends SubsystemBase {
     public void periodic() {
         var speed = pid.calculate(encoder.getDistance(), targetPosition);
 
-        if (bottomLimitSwitch.get())
-        {
+        if (bottomLimitSwitch.get()) {
             encoder.reset();
-            if (speed < 0)
-            {
-                StopMotors();
-                return;
-            }
         }
 
-        else if (topLimitSwitch.get() && speed > 0)
-        {
-            StopMotors();
-            return;
+        if (bottomLimitSwitch.get() && speed < 0 || topLimitSwitch.get() & speed > 0) {
+            leftMotor.stopMotor();
+            rightMotor.stopMotor();
+        } else {
+            leftMotor.set(speed);
+            rightMotor.set(speed);
         }
-
-        SetMotors(speed);
-    }
-
-    private void StopMotors()
-    {
-        leftMotor.stopMotor();
-        rightMotor.stopMotor();
-    }
-
-    private void SetMotors(double speed)
-    {
-        leftMotor.set(speed);
-        rightMotor.set(speed);
     }
 }
