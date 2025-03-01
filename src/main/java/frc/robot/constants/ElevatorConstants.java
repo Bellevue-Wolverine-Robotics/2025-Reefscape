@@ -21,5 +21,4 @@ public final class ElevatorConstants {
     public static final double LEVEL_THREE = 0.0d;
     public static final double LEVEL_FOUR = 0.0d;
     public static final double INTAKE_LEVEL = 0.0d;
-
 }

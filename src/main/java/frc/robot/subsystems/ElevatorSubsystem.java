@@ -18,20 +18,31 @@ public class ElevatorSubsystem extends SubsystemBase {
     private final PIDController pid = new PIDController(ElevatorConstants.KP, ElevatorConstants.KI, ElevatorConstants.KD);
     private final Encoder encoder = new Encoder(1, 2, false, EncodingType.k4X);
 
+    private double nextPosition = 0.0d;
     private double targetPosition = 0.0d;
 
     public ElevatorSubsystem() {
         encoder.setDistancePerPulse(ElevatorConstants.DISTANCE_PER_PULSE);
     }
 
-    public void setPosition(double newPosition) {
-        targetPosition = newPosition;
+    public void setTarget(double position) {
+        nextPosition = position;
+    }
+
+    public void adjust() {
+        targetPosition = nextPosition;
     }
 
     @Override
     public void periodic() {
         var speed = pid.calculate(encoder.getDistance(), targetPosition);
-        leftMotor.set(speed);
-        rightMotor.set(speed);
+
+        if (bottomLimitSwitch.get() && speed < 0 || topLimitSwitch.get() && speed > 0) {
+            leftMotor.stopMotor();
+            rightMotor.stopMotor();
+        } else {
+            leftMotor.set(speed);
+            rightMotor.set(speed);
+        }
     }
 }

@@ -7,20 +7,23 @@ package frc.robot;
 import frc.robot.subsystems.ElevatorSubsystem;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.constants.ElevatorConstants;
+import frc.robot.constants.OperatorConstants;
 import edu.wpi.first.wpilibj2.command.Commands;
 
 public class RobotContainer {
   private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
-  private final CommandXboxController controller = new CommandXboxController(0);
+  private final CommandXboxController driverController = new CommandXboxController(OperatorConstants.DRIVE_CONTROLLER_ID);
+  private final CommandXboxController elevatorController = new CommandXboxController(OperatorConstants.ELEVATOR_CONTROLLER_ID);
 
   public RobotContainer() {
-    configureBindings();
+      configureBindings();
   }
 
   private void configureBindings() {
-    controller.a().onTrue(Commands.runOnce(() -> elevatorSubsystem.setPosition(ElevatorConstants.LEVEL_ONE)));
-    controller.b().onTrue(Commands.runOnce(() -> elevatorSubsystem.setPosition(ElevatorConstants.LEVEL_TWO)));
-    controller.y().onTrue(Commands.runOnce(() -> elevatorSubsystem.setPosition(ElevatorConstants.LEVEL_THREE)));
-    controller.x().onTrue(Commands.runOnce(() -> elevatorSubsystem.setPosition(ElevatorConstants.LEVEL_FOUR)));
+      elevatorController.a().onTrue(Commands.runOnce(() -> elevatorSubsystem.setTarget(ElevatorConstants.LEVEL_ONE)));
+      elevatorController.b().onTrue(Commands.runOnce(() -> elevatorSubsystem.setTarget(ElevatorConstants.LEVEL_TWO)));
+      elevatorController.y().onTrue(Commands.runOnce(() -> elevatorSubsystem.setTarget(ElevatorConstants.LEVEL_THREE)));
+      elevatorController.x().onTrue(Commands.runOnce(() -> elevatorSubsystem.setTarget(ElevatorConstants.LEVEL_FOUR)));
+      driverController.x().onTrue(Commands.runOnce(() -> elevatorSubsystem.adjust()));
   }
 }
