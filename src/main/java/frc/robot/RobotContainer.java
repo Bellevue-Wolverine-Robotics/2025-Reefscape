@@ -4,56 +4,23 @@
 
 package frc.robot;
 
-import frc.robot.subsystems.BoreEncoderTestSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.constants.ElevatorConstants;
+import edu.wpi.first.wpilibj2.command.Commands;
 
-/**
- * This class is where the bulk of the robot should be declared. Since Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
- * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
- * subsystems, commands, and trigger mappings) should be declared here.
- */
 public class RobotContainer {
-  // The robot's subsystems and commands are defined here...
-  private final BoreEncoderTestSubsystem boreSubsys = new BoreEncoderTestSubsystem();
+  private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
+  private final CommandXboxController controller = new CommandXboxController(0);
 
-
-  // Replace with CommandPS4Controller or CommandJoystick if needed
-  //private final CommandXboxController m_driverController =
-  //new CommandXboxController(OperatorConstants.kDriverControllerPort);
-
-  /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    // Configure the trigger bindings
     configureBindings();
-    //encoderSubsystem.setDefaultCommand(new RunCommand(() -> System.out.println(encoderSubsystem.getCurrentRotation())));
   }
-  
-  /**
-   * Use this method to define your trigger->command mappings. Triggers can be created via the
-   * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary
-   * predicate, or via the named factories in {@link
-   * edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses for {@link
-   * CommandXboxController Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller
-   * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
-   * joysticks}.
-   */
+
   private void configureBindings() {
-    CommandScheduler.getInstance().registerSubsystem(boreSubsys);
+    controller.a().onTrue(Commands.runOnce(() -> elevatorSubsystem.setPosition(ElevatorConstants.LEVEL_ONE)));
+    controller.b().onTrue(Commands.runOnce(() -> elevatorSubsystem.setPosition(ElevatorConstants.LEVEL_TWO)));
+    controller.y().onTrue(Commands.runOnce(() -> elevatorSubsystem.setPosition(ElevatorConstants.LEVEL_THREE)));
+    controller.x().onTrue(Commands.runOnce(() -> elevatorSubsystem.setPosition(ElevatorConstants.LEVEL_FOUR)));
   }
-
-  /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
-   *
-   * @return the command to run in autonomous
-   */
-
-  /*
-  public Command getAutonomousCommand() {
-    // An example command will be run in autonomous
-    return Autos.exampleAuto(m_exampleSubsystem);
-  }
-  */
 }
