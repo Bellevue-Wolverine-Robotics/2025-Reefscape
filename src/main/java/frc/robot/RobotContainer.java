@@ -1,24 +1,15 @@
 package frc.robot;
 
-import com.pathplanner.lib.auto.NamedCommands;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.commands.AimTagCommand;
 import frc.robot.commands.ChaseTagCommand;
-import frc.robot.constants.*;
 import frc.robot.subsystems.swerve.*;
-import frc.robot.subsystems.vision.VisionSim;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.utils.TriggerUtil;
 import frc.robot.utils.XboxControllerWrapper;
 import java.io.File;
-import org.photonvision.PhotonCamera;
-import swervelib.SwerveInputStream;
 
 /**
  * Where most of the structure of the robot, including subsystems, commands, and
@@ -32,15 +23,16 @@ public class RobotContainer {
     false
   );
 
-  // private final VisionSubsystem visionSubsystem = new VisionSubsystem();
+  private final VisionSubsystem visionSubsystem = new VisionSubsystem();
 
   private final SwerveSubsystem driveSubsystem = new SwerveSubsystem(
-    new File(Filesystem.getDeployDirectory(), "swerve")
+    new File(Filesystem.getDeployDirectory(), "swerve"),
+    visionSubsystem
   );
 
-  private final VisionSubsystem visionSubsystem = new VisionSim(() ->
-    driveSubsystem.getPose()
-  );
+  // private final VisionSubsystem visionSubsystem = new VisionSim(() ->
+  //   driveSubsystem.getPose()
+  // );
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -108,7 +100,7 @@ public class RobotContainer {
     Command chaseTagCommand = new ChaseTagCommand(
       visionSubsystem,
       driveSubsystem,
-      17
+      1
     );
 
     driveSubsystem.setDefaultCommand(driveAngularSpeedCommand);
