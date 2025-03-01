@@ -9,6 +9,8 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 public class ElevatorSubsystem extends SubsystemBase {
+    private double diameter = 0.75d;
+
     private final DutyCycleEncoder dutyCycleEncoder = new DutyCycleEncoder(ElevatorConstants.DUTY_CYCLE_ENCODER_PORT);
     private final DigitalInput bottomLimitSwitch = new DigitalInput(ElevatorConstants.BOTTOM_LIMIT_SWITCH_PORT);
     private final DigitalInput topLimitSwitch = new DigitalInput(ElevatorConstants.TOP_LIMIT_SWITCH_PORT);
