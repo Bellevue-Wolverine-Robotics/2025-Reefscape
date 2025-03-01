@@ -31,6 +31,34 @@ public class ElevatorSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         var speed = pid.calculate(encoder.getDistance(), targetPosition);
+
+        if (bottomLimitSwitch.get())
+        {
+            encoder.reset();
+            if (speed < 0)
+            {
+                StopMotors();
+                return;
+            }
+        }
+
+        else if (topLimitSwitch.get() && speed > 0)
+        {
+            StopMotors();
+            return;
+        }
+
+        SetMotors(speed);
+    }
+
+    private void StopMotors()
+    {
+        leftMotor.stopMotor();
+        rightMotor.stopMotor();
+    }
+
+    private void SetMotors(double speed)
+    {
         leftMotor.set(speed);
         rightMotor.set(speed);
     }
