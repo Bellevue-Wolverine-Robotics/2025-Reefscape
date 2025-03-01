@@ -1,9 +1,4 @@
 package frc.robot.Subsystems;
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
-//package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
@@ -12,411 +7,195 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-//import frc.robot.Constants.OIConstants;
-//import frc.robot.Constants.PortConstants;
-public class LEDModeSubsystem extends SubsystemBase{
-  public void periodic() {
 
-  }
-  //////
-/*
-  // Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
-package frc.robot.subsystems;
-
-
-import edu.wpi.first.wpilibj.AddressableLED;
-import edu.wpi.first.wpilibj.AddressableLEDBuffer;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.util.Color;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.OIConstants;
-import frc.robot.Constants.PortConstants;
-
+/**
+ * LED subsystem for robot status indication.
+ * Controls LED colors/patterns for states like game piece detection, AprilTag tracking, and robot status (disabled, enabled).
+ */
 public class LEDModeSubsystem extends SubsystemBase {
-  boolean cubeMode = false;
-  AddressableLED led;
-  AddressableLEDBuffer ledBufferOff;
-  Gripper gripper;
-  AddressableLEDBuffer yellowLedBuffer;
-  AddressableLEDBuffer purpleLedBuffer;
-  AddressableLEDBuffer redLEDBuffer;
-  AddressableLEDBuffer rainbowLEDBuffer;
-  Timer ledTimerOff;
-  Timer ledTimerOn;
-  boolean blink = false; // sets robot to cone mode by default
+    // LED Hardware
+    private AddressableLED ledStrip; // LED strip
+    private AddressableLEDBuffer ledColors; // LED colors buffer
 
-  */
-/** Creates a new LEDModeSubsystem. *//*
+    // Color Buffers
+    private AddressableLEDBuffer yellowBuffer; // 'Coral' (game piece) - Yellow
+    private AddressableLEDBuffer blueBuffer;   // No 'Coral' - Blue
+    private AddressableLEDBuffer redBuffer;    // Robot disabled - Red
+    private AddressableLEDBuffer greenBuffer;  // AprilTag tracked - Solid Green
+    private AddressableLEDBuffer flashingGreenBuffer; // AprilTag not tracked - Flashing Green
 
-  public LEDModeSubsystem(Gripper gripper) {
-    this.gripper = gripper;
+    // Blinking Timers
+    private Timer blinkTimerOn;  // Blinking 'on' timer
+    private Timer blinkTimerOff; // Blinking 'off' timer
 
-    //create led blink timers
-    ledTimerOff = new Timer();
-    ledTimerOn = new Timer();
+    // Robot State
+    private boolean hasCoral = false;       // 'Coral' game piece detected
+    private boolean isTrackingAprilTag = false; // AprilTag tracking status
+    private boolean shouldBlink = false;   // LED blink control
 
-    // initialize LED's LED's
-    led = new AddressableLED(PortConstants.kLEDStripPort);
-    ledBufferOff = new AddressableLEDBuffer(OIConstants.kLEDStripLength);
-    purpleLedBuffer = new AddressableLEDBuffer(OIConstants.kLEDStripLength);
-    yellowLedBuffer = new AddressableLEDBuffer(OIConstants.kLEDStripLength);
-    redLEDBuffer = new AddressableLEDBuffer(OIConstants.kLEDStripLength);
-    rainbowLEDBuffer = new AddressableLEDBuffer(OIConstants.kLEDStripLength);
-    led.setLength(yellowLedBuffer.getLength());
-    led.start();
+    /**
+     * LEDModeSubsystem constructor.
+     * Initializes LED strip, color buffers, and timers.
+     */
+    public LEDModeSubsystem() {
+        // Initialize LED Strip
+        ledStrip = new AddressableLED(1); // PWM port 1 (CHANGE IF DIFFERENT)
+        ledColors = new AddressableLEDBuffer(150); // 150 LEDs (CHANGE IF DIFFERENT)
+        ledStrip.setLength(ledColors.getLength());
+        ledStrip.start();
 
-    // create buffers for each color
-    for (var i = 0; i < purpleLedBuffer.getLength(); i++){
-      purpleLedBuffer.setRGB(i, 255, 0, 255);
-    }
-    for (var i = 0; i < yellowLedBuffer.getLength(); i++){
-      //yellowLedBuffer.setRGB(i, 255, 255, 0);
-      yellowLedBuffer.setLED(i, Color.kYellow);
-    }
-    for (var i = 0; i < ledBufferOff.getLength(); i++){
-      ledBufferOff.setRGB(i, 0, 0, 0);// off
-    }
-    for (var i = 0; i < redLEDBuffer.getLength(); i++){
-      redLEDBuffer.setRGB(i, 255, 0, 0);// red
-    }
+        // Initialize Color Buffers
+        yellowBuffer = new AddressableLEDBuffer(ledColors.getLength());
+        blueBuffer = new AddressableLEDBuffer(ledColors.getLength());
+        redBuffer = new AddressableLEDBuffer(ledColors.getLength());
+        greenBuffer = new AddressableLEDBuffer(ledColors.getLength());
+        flashingGreenBuffer = new AddressableLEDBuffer(ledColors.getLength());
 
-
-
-    // defualt robot to Cone Mode
-    led.setData(yellowLedBuffer);
-
-    //led blinking timers
-    ledTimerOn.start();
-    ledTimerOff.reset();
-    ledTimerOn.reset();
-  }
-
-  @Override
-  public void periodic() {
-    // This method will be called once per scheduler run
-    SmartDashboard.putBoolean("Robot Mode", cubeMode);
-    SmartDashboard.putNumber("Led On Timer", ledTimerOn.get());
-    SmartDashboard.putNumber("Led Off Timer", ledTimerOff.get());
-
-
-      //blink mode - Blink LED's for given time
-      if (blink){
-        if (ledTimerOn.get() >= .25){
-          ledTimerOn.reset();
-          ledTimerOn.stop();
-          ledTimerOff.start();
-          setLEDColor();
+        // Set Buffer Colors
+        for (int i = 0; i < yellowBuffer.getLength(); i++) {
+            yellowBuffer.setLED(i, Color.kYellow); // Yellow
+        }
+        for (int i = 0; i < blueBuffer.getLength(); i++) {
+            blueBuffer.setRGB(i, 0, 0, 255); // Blue
+        }
+        for (int i = 0; i < redBuffer.getLength(); i++) {
+            redBuffer.setRGB(i, 255, 0, 0); // Red
+        }
+        for (int i = 0; i < greenBuffer.getLength(); i++) {
+            greenBuffer.setRGB(i, 0, 255, 0); // Green
+        }
+        for (int i = 0; i < flashingGreenBuffer.getLength(); i++) {
+            if (i % 2 == 0) {
+                flashingGreenBuffer.setRGB(i, 0, 255, 0); // Green (even LEDs)
+            } else {
+                flashingGreenBuffer.setRGB(i, 0, 0, 0);   // Off (odd LEDs)
+            }
         }
 
-        else if (ledTimerOff.get() >= .25){
-          ledTimerOff.reset();
-          ledTimerOff.stop();
-          ledTimerOn.start();
-          ledOff();
+        // Initialize Blinking Timers
+        blinkTimerOn = new Timer();
+        blinkTimerOff = new Timer();
+
+        // Initial LED Color
+        updateLEDs(); // Set initial LED color
+    }
+
+    @Override
+    public void periodic() {
+        // Runs every robot cycle (e.g., 20ms)
+
+        // SmartDashboard Debugging
+//        SmartDashboard.putBoolean("Coral Sensor Active", hasCoral());
+//        SmartDashboard.putBoolean("AprilTag Is Tracked", isAprilTagTracked());
+//        SmartDashboard.putNumber("Blink Timer On", blinkTimerOn.get());
+//        /*SmartDashboard.putNumber("Blink Timer Off", blinkTim/**/erOff.get());*/
+        
+        //   Handle LED Blinking
+        if   (shouldBlink) {
+                if (blinkTimerOn.isRunning() && blinkTimerOn.get() >= 0.25) {
+                blinkTimerOn.stop();
+                blinkTimerOff.reset();
+                blinkTimerOff.start();
+                updateLEDs(); // Flashing green ON
+            } else if (blinkTimerOff.isRunning() && blinkTimerOff.get() >= 0.25) {
+                blinkTimerOff.stop();
+                blinkTimerOn.reset();
+                blinkTimerOn.start();
+                turnLEDsOff(); // LEDs off (blinking)
+            }
+        } else {
+            updateLEDs(); // Update LEDs (no blinking)
         }
-      }
-
-      // No game piece set led color based on mode
-      else {
-        setLEDColor();
-      }
-
-  }
-
-
-  //set robot to cubme mode
-  public void cubeMode() {
-    cubeMode = true;
-
-    led.setData(purpleLedBuffer);
-  }
-
-  // set robot to cone mode
-  public void coneMode() {
-    cubeMode = false;
-
-    led.setData(yellowLedBuffer);
-  }
-
-  // Toggles the robot mode
-  public void toggleRobotMode() {
-    if (cubeMode){
-      cubeMode = false;
-    }
-    else {
-      cubeMode = true;
-    }
-  }
-
-  // Get robot Mode true = cube false = cone
-  public boolean getRobotMode() {
-    return cubeMode;
-  }
-
-  // Set LED Color based on mode
-  public void setLEDColor() {
-
-    if (DriverStation.isDisabled()){
-      led.setData(redLEDBuffer);
     }
 
-    else if(cubeMode) {
-      led.setData(purpleLedBuffer);
-    }
+    // LED Control Methods
 
-    else{
-      led.setData(yellowLedBuffer);
+    /**
+     * Sets LED color based on robot status.
+     * Chooses color buffer based on disabled state, 'Coral' detection, or AprilTag tracking.
+     */
+    public void updateLEDs() {
+        if (DriverStation.isDisabled()) {
+            ledStrip.setData(flashingGreenBuffer); // Flash green when disabled
+            shouldBlink = true; // Enable blinking
+
+            if (!blinkTimerOn.isRunning() && !blinkTimerOff.isRunning()) {
+                blinkTimerOn.reset();
+                blinkTimerOff.reset();
+                blinkTimerOn.start(); // Start blinking timer
+            }
+
+        } else if (hasCoral()) {
+            ledStrip.setData(yellowBuffer); // Yellow when 'Coral' detected
+            shouldBlink = false; // No blinking
+        } else if (isAprilTagTracked()) {
+            ledStrip.setData(greenBuffer); // Solid green when AprilTag tracked
+            shouldBlink = false; // No blinking
+        } else {
+            ledStrip.setData(flashingGreenBuffer); // Flash green if AprilTag not tracked
+            shouldBlink = true; // Enable blinking
+
+            if (!blinkTimerOn.isRunning() && !blinkTimerOff.isRunning()) {
+                blinkTimerOn.reset();
+                blinkTimerOff.reset();
+                blinkTimerOn.start(); // Start blinking timer
+            }
+        }
+
+        if (!shouldBlink) {
+            blinkTimerOn.stop();
+            blinkTimerOff.stop();
+            blinkTimerOn.reset();
+            blinkTimerOff.reset();
+        }
     }
 
 
-  }
+    /**
+     * Turns off LEDs (red for testing).
+     * Sets LEDs to red for testing; consider black (offBuffer) for final.
+     */
+    public void turnLEDsOff() {
+        ledStrip.setData(redBuffer); // Red for testing, ledColors is black
+    }
 
-  // turn LED's off
-  public void ledOff(){
-    led.setData(ledBufferOff);
-  }
 
-  public void setRedLEDs () {
-    led.setData(redLEDBuffer);
-  }
+    // Setter Methods
 
-  public void startBlinking() {// To be called elsewhere to blink the lights
-    blink = true;
-  }
+    /**
+     * Sets 'Coral' sensor status.
+     * @param coralDetected True if detected, false otherwise.
+     */
+    public void setHasCoral(boolean coralDetected) {
+        hasCoral = coralDetected;
+        updateLEDs();
+    }
 
-  public void stopBlinking() {// To be called elsewhere to return the lights to a solid color
-    blink = false;
-  }
+    /**
+     * Sets AprilTag tracking status.
+     * @param aprilTagIsTracked True if tracked, false otherwise.
+     */
+    public void setIsAprilTagTracked(boolean aprilTagIsTracked) {
+        isTrackingAprilTag = aprilTagIsTracked;
+        updateLEDs();
+    }
 
-}
-*/
-////
-//  // Copyright (c) FIRST and other WPILib contributors.
-//// Open Source Software; you can modify and/or share it under the terms of
-//// the WPILib BSD license file in the root directory of this project.
-//
-//package frc.robot;
-//
-//import static edu.wpi.first.units.Units.Meters;
-//import static edu.wpi.first.units.Units.MetersPerSecond;
-//
-//import edu.wpi.first.units.measure.Distance;
-//import edu.wpi.first.wpilibj.AddressableLED;
-//import edu.wpi.first.wpilibj.AddressableLEDBuffer;
-//import edu.wpi.first.wpilibj.AddressableLEDBufferView;
-//import edu.wpi.first.wpilibj.LEDPattern;
-//import edu.wpi.first.wpilibj.TimedRobot;
-//import edu.wpi.first.wpilibj.Timer;
-//import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-//import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-//import edu.wpi.first.wpilibj.util.Color;
-//
-//
-///**
-// * The methods in this class are called automatically corresponding to each mode, as described in
-// * the TimedRobot documentation. If you change the name of this class or the package after creating
-// * this project, you must also update the Main.java file in the project.
-// */
-//public class Robot extends TimedRobot {
-//  private static final String kDefaultAuto = "Default";
-//  private static final String kCustomAuto = "My Auto";
-//  private String m_autoSelected;
-//  private final SendableChooser<String> m_chooser = new SendableChooser<>();
-//
-//  private AddressableLED m_led;
-//  private AddressableLEDBuffer m_ledBuffer;
-//
-//  private double currentTime;
-//
-//  // Create the buffer
-//AddressableLEDBuffer m_buffer = new AddressableLEDBuffer(300);
-//
-//// Create the view for the section of the strip on the left side of the robot.
-//// This section smmmpans LEDs from index 0 through index 59, inclusive.
-//AddressableLEDBufferView m_left = m_buffer.createView(0, 150);
-//
-//// The section of the strip on the right side of the robot.
-//// This section spans LEDs from index 60 through index 119, inclusive.
-//// This view is reversed to cancel out the serpentine arrangement of the
-//// physical LED strip on the robot.
-//AddressableLEDBufferView m_right = m_buffer.createView(151, 299).reversed();
-//
-//// Create an LED pattern that sets the entire strip to solid
-//LEDPattern red = LEDPattern.solid(Color.kRed);
-//LEDPattern green = LEDPattern.solid(Color.kGreen);
-//LEDPattern blue = LEDPattern.solid(Color.kBlue);
-//LEDPattern white = LEDPattern.solid(Color.kWhite);
-//
-//  private Timer timer = new Timer();
-//
-//
-////RANBOW DECLERATIONS
-//  // all hues at maximum saturation and half brightness
-//  private final LEDPattern m_rainbow = LEDPattern.rainbow(255, 128);
-//
-//  // Our LED strip has a density of 120 LEDs per meter
-//  private static final Distance kLedSpacing = Meters.of(1 / 30.0);
-//
-//  // Create a new pattern that scrolls the rainbow pattern across the LED strip, moving at a speed
-//  // of 1 meter per second.
-//  private final LEDPattern m_scrollingRainbow =
-//      m_rainbow.scrollAtAbsoluteSpeed(MetersPerSecond.of(1), kLedSpacing);
-//
-//  /**
-//  * This function is run when the robot is first started up and should be used for any
-//   * initialization code.
-//   */
-//  public Robot() {
-//    m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
-//    m_chooser.addOption("My Auto", kCustomAuto);
-//    SmartDashboard.putData("Auto choices", m_chooser);
-//  }
-//
-//  /**
-//   * This function is called every 20 ms, no matter the mode. Use this for items like diagnostics
-//   * that you want ran during disabled, autonomous, teleoperated and test.
-//   *
-//   * <p>This runs after the mode specific periodic functions, but before LiveWindow and
-//   * SmartDashboard integrated updating.
-//   */
-//  @Override
-//  public void robotPeriodic() {
-//        // // Update the buffer with the rainbow animation
-//        // m_scrollingRainbow.applyTo(m_ledBuffer);
-//        // // Set the LEDs
-//        // m_led.setData(m_ledBuffer);
-//  }
-//
-//  /**
-//   * This autonomous (along with the chooser code above) shows how to select between different
-//   * autonomous modes using the dashboard. The sendable chooser code works with the Java
-//   * SmartDashboard. If you prefer the LabVIEW Dashboard, remove all of the chooser code and
-//   * uncomment the getString line to get the auto name from the text box below the Gyro
-//   *
-//   * <p>You can add additional auto modes by adding additional comparisons to the switch structure
-//   * below with additional strings. If using the SendableChooser make sure to add them to the
-//   * chooser code above as well.
-//   */
-//  @Override
-//  public void autonomousInit() {
-//    m_autoSelected = m_chooser.getSelected();
-//    // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
-//    System.out.println("Auto selected: " + m_autoSelected);
-//
-//
-//    // Must be a PWM header, not MXP or DIO
-//    m_led = new AddressableLED(0); //0 -> 9, top -> bottom
-//
-//    // Reuse buffer
-//    // Default to a length of 60, start empty output
-//    // Length is expensive to set, so only set it once, then just update data
-//    m_ledBuffer = new AddressableLEDBuffer(300);
-//    m_led.setLength(m_ledBuffer.getLength());
-//
-//    // Set the data
-//    m_led.setData(m_ledBuffer);
-//    m_led.start();
-//
-//    timer.reset();
-//    timer.start();
-//
-//
-//    green.applyTo(m_ledBuffer);
-//    m_autoSelected = m_chooser.getSelected();
-//    // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
-//    System.out.println("Auto selected: " + m_autoSelected);
-//
-//
-//    // Must be a PWM header, not MXP or DIO
-//    m_led = new AddressableLED(0); //0 -> 9, top -> bottom
-//
-//    // Reuse buffer
-//    // Default to a length of 60, start empty output
-//    // Length is expensive to set, so only set it once, then just update data
-//    m_ledBuffer = new AddressableLEDBuffer(300);
-//    m_led.setLength(m_ledBuffer.getLength());
-//
-//    // Set the data
-//    m_led.setData(m_ledBuffer);
-//    m_led.start();
-//
-//    timer.reset();
-//    timer.start();
-//
-//
-//    green.applyTo(m_ledBuffer);
-//
-//// Write the data to the LED strip
-//m_led.setData(m_ledBuffer);
-//
-//  }
-//
-//
-//  /** This function is called periodically during autonomous. */
-//  @Override
-//  public void autonomousPeriodic() {
-//    switch (m_autoSelected) {
-//      case kCustomAuto:
-//        // Put custom auto code here
-//        break;
-//      case kDefaultAuto:
-//      default:
-//        // Put default auto code here
-//        break;
-//    }
-//            // Update the buffer with the rainbow animation
-//            // m_scrollingRainbow.applyTo(m_ledBuffer);                SET TO RANBOW
-//            // Set the LEDs
-//            m_led.setData(m_ledBuffer);
-//
-//            if (timer.get() < 3) {
-//             green.applyTo(m_ledBuffer);
-//              m_led.setData(m_ledBuffer);
-//            }
-//
-//            else {
-//              white.applyTo(m_ledBuffer);
-//              m_led.setData(m_ledBuffer);
-//            }
-//
-//  }
-//
-//  /** This function is called once when teleop is enabled. */
-//  @Override
-//  public void teleopInit() {}
-//
-//  /** This function is called periodically during operator control. */
-//  @Override
-//  public void teleopPeriodic() {}
-//
-//  /** This function is called once when the robot is disabled. */
-//  @Override
-//  public void disabledInit() {}
-//
-//  /** This function is called periodically when disabled. */
-//  @Override
-//  public void disabledPeriodic() {}
-//
-//  /** This function is called once when test mode is enabled. */
-//  @Override
-//  public void testInit() {}
-//
-//  /** This function is called periodically during test mode. */
-//  @Override
-//  public void testPeriodic() {}
-//
-//  /** This function is called once when the robot is first started up. */
-//  @Override
-//  public void simulationInit() {}
-//
-//  /** This function is called periodically whilst in simulation. */
-//  @Override
-//  public void simulationPeriodic() {}
-//}
 
+    // Getter Methods
+
+    /**
+     * Checks if 'Coral' is detected.
+     * @return True if 'Coral' detected, false otherwise.
+     */
+    public boolean hasCoral() {
+        return hasCoral; // Placeholder - Replace with sensor logic
+    }
+
+    /**
+     * Checks if AprilTag is tracked.
+     * @return True if AprilTag tracked, false otherwise.
+     */
+    public boolean isAprilTagTracked() {
+        return isTrackingAprilTag; // Placeholder - Replace with vision system logic
+    }
 }
