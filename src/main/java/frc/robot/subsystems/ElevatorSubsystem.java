@@ -1,14 +1,18 @@
 package frc.robot.subsystems;
 
-import frc.robot.constants.ElevatorConstants;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.CounterBase.EncodingType;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.math.controller.PIDController;
 
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.SparkMaxConfig;
+
+import frc.robot.constants.ElevatorConstants;
 
 public class ElevatorSubsystem extends SubsystemBase {
     private final DigitalInput bottomLimitSwitch = new DigitalInput(ElevatorConstants.BOTTOM_LIMIT_SWITCH_PORT);
@@ -22,6 +26,11 @@ public class ElevatorSubsystem extends SubsystemBase {
     private double targetPosition = 0.0d;
 
     public ElevatorSubsystem() {
+        var config = new SparkMaxConfig();
+        config.idleMode(SparkMaxConfig.IdleMode.kBrake);
+        leftMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        rightMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
         pid.setTolerance(ElevatorConstants.ERROR_TOLERANCE, ElevatorConstants.ERROR_DERIVATIVE_TOLERANCE);
         encoder.setDistancePerPulse(ElevatorConstants.DISTANCE_PER_PULSE);
     }
