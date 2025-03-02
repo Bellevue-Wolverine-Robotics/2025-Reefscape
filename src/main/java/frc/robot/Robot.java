@@ -4,7 +4,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.DigitalInput; // Import for DigitalInput (Coral Sensor example)
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard; // Import for SmartDashboard
-import frc.robot.Subsystems.LEDModeSubsystem;
+import frc.robot.subsystems.LEDModeSubsystem;
 
 public class Robot extends TimedRobot {
     private LEDModeSubsystem m_ledSubsystem; // LED Subsystem instance
