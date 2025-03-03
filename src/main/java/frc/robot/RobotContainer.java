@@ -12,8 +12,8 @@ public class RobotContainer {
     private final CoralSubsystem coralSubsystem = new CoralSubsystem();
     private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
 
-    private final CommandXboxController driverController = new CommandXboxController(OperatorConstants.DRIVE_CONTROLLER_ID);
-    private final CommandXboxController elevatorController = new CommandXboxController(OperatorConstants.ELEVATOR_CONTROLLER_ID);
+    private final CommandXboxController driverController = new CommandXboxController(OperatorConstants.DRIVE_CONTROLLER_PORT);
+    private final CommandXboxController elevatorController = new CommandXboxController(OperatorConstants.ELEVATOR_CONTROLLER_PORT);
 
     public RobotContainer() {
         configureBindings();
