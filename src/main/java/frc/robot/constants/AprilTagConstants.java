@@ -45,26 +45,30 @@ public final class AprilTagConstants {
   private static final int RED_LEFT_CORAL_STATION_TAG_ID = 1;
 
   /**
+   * Creates a supplier that returns the appropriate tag ID based on the alliance color from FMS
+   * @param blueTagId The tag ID to use when on blue alliance
+   * @param redTagId The tag ID to use when on red alliance
+   * @return A supplier that provides the alliance-specific tag ID when evaluated
+   */
+  private static Supplier<Integer> getAllianceSpecificTagIdSupplier(
+    int blueTagId,
+    int redTagId
+  ) {
+    return () -> {
+      Optional<Alliance> alliance = DriverStation.getAlliance();
+      return alliance.isPresent() && alliance.get() == Alliance.Red
+        ? redTagId
+        : blueTagId;
+    };
+  }
+
+  /**
    * Returns a supplier for the bottom tag approach pose
    */
   public static Supplier<Pose2d> getBottomTagApproachPoseSupplier() {
     return () ->
-      getPoseFromTag(
-        getAllianceSpecificTagId(BLUE_BOTTOM_TAG_ID, RED_BOTTOM_TAG_ID),
-        STANDARD_APPROACH_TRANSFORM
-      );
-  }
-
-  /**
-   * Returns a supplier for the bottom left tag approach pose
-   */
-  public static Supplier<Pose2d> getBottomLeftTagApproachPoseSupplier() {
-    return () ->
-      getPoseFromTag(
-        getAllianceSpecificTagId(
-          BLUE_BOTTOM_LEFT_TAG_ID,
-          RED_BOTTOM_LEFT_TAG_ID
-        ),
+      getPoseFromTagSupplier(
+        getAllianceSpecificTagIdSupplier(BLUE_BOTTOM_TAG_ID, RED_BOTTOM_TAG_ID),
         STANDARD_APPROACH_TRANSFORM
       );
   }
@@ -74,8 +78,11 @@ public final class AprilTagConstants {
    */
   public static Supplier<Pose2d> getTopLeftTagApproachPoseSupplier() {
     return () ->
-      getPoseFromTag(
-        getAllianceSpecificTagId(BLUE_TOP_LEFT_TAG_ID, RED_TOP_LEFT_TAG_ID),
+      getPoseFromTagSupplier(
+        getAllianceSpecificTagIdSupplier(
+          BLUE_TOP_LEFT_TAG_ID,
+          RED_TOP_LEFT_TAG_ID
+        ),
         STANDARD_APPROACH_TRANSFORM
       );
   }
@@ -85,8 +92,8 @@ public final class AprilTagConstants {
    */
   public static Supplier<Pose2d> getTopTagApproachPoseSupplier() {
     return () ->
-      getPoseFromTag(
-        getAllianceSpecificTagId(BLUE_TOP_TAG_ID, RED_TOP_TAG_ID),
+      getPoseFromTagSupplier(
+        getAllianceSpecificTagIdSupplier(BLUE_TOP_TAG_ID, RED_TOP_TAG_ID),
         STANDARD_APPROACH_TRANSFORM
       );
   }
@@ -96,8 +103,11 @@ public final class AprilTagConstants {
    */
   public static Supplier<Pose2d> getTopRightTagApproachPoseSupplier() {
     return () ->
-      getPoseFromTag(
-        getAllianceSpecificTagId(BLUE_TOP_RIGHT_TAG_ID, RED_TOP_RIGHT_TAG_ID),
+      getPoseFromTagSupplier(
+        getAllianceSpecificTagIdSupplier(
+          BLUE_TOP_RIGHT_TAG_ID,
+          RED_TOP_RIGHT_TAG_ID
+        ),
         STANDARD_APPROACH_TRANSFORM
       );
   }
@@ -107,10 +117,24 @@ public final class AprilTagConstants {
    */
   public static Supplier<Pose2d> getBottomRightTagApproachPoseSupplier() {
     return () ->
-      getPoseFromTag(
-        getAllianceSpecificTagId(
+      getPoseFromTagSupplier(
+        getAllianceSpecificTagIdSupplier(
           BLUE_BOTTOM_RIGHT_TAG_ID,
           RED_BOTTOM_RIGHT_TAG_ID
+        ),
+        STANDARD_APPROACH_TRANSFORM
+      );
+  }
+
+  /**
+   * Returns a supplier for the bottom left tag approach pose
+   */
+  public static Supplier<Pose2d> getBottomLeftTagApproachPoseSupplier() {
+    return () ->
+      getPoseFromTagSupplier(
+        getAllianceSpecificTagIdSupplier(
+          BLUE_BOTTOM_LEFT_TAG_ID,
+          RED_BOTTOM_LEFT_TAG_ID
         ),
         STANDARD_APPROACH_TRANSFORM
       );
@@ -121,8 +145,8 @@ public final class AprilTagConstants {
    */
   public static Supplier<Pose2d> getRightCoralStationApproachPoseSupplier() {
     return () ->
-      getPoseFromTag(
-        getAllianceSpecificTagId(
+      getPoseFromTagSupplier(
+        getAllianceSpecificTagIdSupplier(
           BLUE_RIGHT_CORAL_STATION_TAG_ID,
           RED_RIGHT_CORAL_STATION_TAG_ID
         ),
@@ -135,8 +159,8 @@ public final class AprilTagConstants {
    */
   public static Supplier<Pose2d> getLeftCoralStationApproachPoseSupplier() {
     return () ->
-      getPoseFromTag(
-        getAllianceSpecificTagId(
+      getPoseFromTagSupplier(
+        getAllianceSpecificTagIdSupplier(
           BLUE_LEFT_CORAL_STATION_TAG_ID,
           RED_LEFT_CORAL_STATION_TAG_ID
         ),
@@ -145,25 +169,16 @@ public final class AprilTagConstants {
   }
 
   /**
-   * Helper method to get a pose from an AprilTag ID with the specified transform applied
-   * @param tagId The AprilTag ID
+   * Helper method to get a pose from an AprilTag ID supplier with the specified transform applied
+   * @param tagIdSupplier The supplier for the AprilTag ID
    * @param transform The transform to apply to the AprilTag pose
    * @return The pose to drive to, with the transform applied
    */
-  private static Pose2d getPoseFromTag(int tagId, Transform2d transform) {
+  private static Pose2d getPoseFromTagSupplier(
+    Supplier<Integer> tagIdSupplier,
+    Transform2d transform
+  ) {
+    int tagId = tagIdSupplier.get();
     return AprilTagUtils.getAprilTagPose(tagId).transformBy(transform);
-  }
-
-  /**
-   * Selects the appropriate tag ID based on the current alliance color from FMS
-   * @param blueTagId The tag ID to use when on blue alliance
-   * @param redTagId The tag ID to use when on red alliance
-   * @return The alliance-specific tag ID
-   */
-  private static int getAllianceSpecificTagId(int blueTagId, int redTagId) {
-    Optional<Alliance> alliance = DriverStation.getAlliance();
-    return alliance.isPresent() && alliance.get() == Alliance.Red
-      ? redTagId
-      : blueTagId;
   }
 }

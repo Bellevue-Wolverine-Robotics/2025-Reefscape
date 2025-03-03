@@ -1,18 +1,13 @@
-// =========================================
-// Package & Imports
-// =========================================
 package frc.robot.subsystems.swerve;
 
 import static edu.wpi.first.units.Units.Meter;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathConstraints;
-import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.swerve.SwerveSetpoint;
 import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
@@ -239,8 +234,8 @@ public class SwerveSubsystem extends SubsystemBase {
         },
         // PPHolonomicDriveController with PID constants for translation and rotation.
         new PPHolonomicDriveController(
-          new PIDConstants(5.0, 0.0, 0.0),
-          new PIDConstants(5.0, 0.0, 0.0)
+          new PIDConstants(DriveConstants.PATH_PLANNER_LINEAR_KP, 0.0, 0.0),
+          new PIDConstants(DriveConstants.PATH_PLANNER_ANGULAR_KP, 0.0, 0.0)
         ),
         config,
         // Supplier to mirror the path for red alliance if needed.
@@ -260,39 +255,68 @@ public class SwerveSubsystem extends SubsystemBase {
     PathfindingCommand.warmupCommand().schedule();
   }
 
-  // =========================================
-  // Autonomous & Path Commands
-  // =========================================
-
-  /**
-   * Get the path follower with events.
-   *
-   * @param pathName PathPlanner path name.
-   * @return {@link AutoBuilder#followPath(PathPlannerPath)} path command.
-   */
-  public Command getAutonomousCommand(String pathName) {
-    return new PathPlannerAuto(pathName);
-  }
-
   /**
    * Use PathPlanner Path finding to go to a point on the field.
+   * This version properly handles the "hold to drive" behavior with improved speed performance.
    *
    * @param poseSupplier Target {@link Supplier<Pose2d>} to go to.
-   * @return PathFinding command
+   * @return PathFinding command that requires the subsystem until canceled
    */
   public Command driveToPose(Supplier<Pose2d> poseSupplier) {
-    Pose2d pose = poseSupplier.get();
-    PathConstraints constraints = new PathConstraints(
-      swerveDrive.getMaximumChassisVelocity(),
-      4.0,
-      swerveDrive.getMaximumChassisAngularVelocity(),
-      Units.degreesToRadians(720)
-    );
-    return AutoBuilder.pathfindToPose(
-      pose,
-      constraints,
-      edu.wpi.first.units.Units.MetersPerSecond.of(0)
-    );
+    // Use an atomic reference to track the current pathfinding command
+    AtomicReference<Command> currentPathCommand = new AtomicReference<>(null);
+    return Commands.runOnce(() -> {
+      System.out.println("Starting pathfinding command");
+      // Create initial pathfinding command
+      Pose2d pose = poseSupplier.get();
+      System.out.println(pose);
+      PathConstraints constraints = new PathConstraints(
+        swerveDrive.getMaximumChassisVelocity(), // Use full speed
+        5.5, // Maximum acceleration
+        swerveDrive.getMaximumChassisAngularVelocity(), // Full angular velocity
+        Units.degreesToRadians(720) // Maximum angular acceleration
+      );
+      Command pathfindCommand = AutoBuilder.pathfindToPose(
+        pose,
+        constraints,
+        edu.wpi.first.units.Units.MetersPerSecond.of(0) // No speed reduction at end
+      );
+      // Store and schedule
+      currentPathCommand.set(pathfindCommand);
+      pathfindCommand.schedule();
+    })
+      .andThen(
+        // This will only schedule a new command if the current one is complete
+        Commands.run(() -> {
+          Command current = currentPathCommand.get();
+          if (current == null || current.isFinished()) {
+            Pose2d pose = poseSupplier.get();
+            PathConstraints constraints = new PathConstraints(
+              swerveDrive.getMaximumChassisVelocity(),
+              5.5,
+              swerveDrive.getMaximumChassisAngularVelocity(),
+              Units.degreesToRadians(720)
+            );
+            Command pathfindCommand = AutoBuilder.pathfindToPose(
+              pose,
+              constraints,
+              edu.wpi.first.units.Units.MetersPerSecond.of(0)
+            );
+            currentPathCommand.set(pathfindCommand);
+            pathfindCommand.schedule();
+          }
+        }).until(() -> false) // Run until interrupted
+      )
+      .finallyDo(interrupted -> {
+        // This will run when the button is released
+        System.out.println("COMMAND ENDED - Button released");
+        // Cancel just the pathfinding command rather than all commands
+        Command current = currentPathCommand.get();
+        if (current != null) {
+          current.cancel();
+        }
+      })
+      .withTimeout(10); // Safety timeout in case something goes wrong
   }
 
   /**
@@ -451,11 +475,17 @@ public class SwerveSubsystem extends SubsystemBase {
   public Command driveAngularSpeedCommand(
     XboxControllerWrapper xboxController
   ) {
-    return this.driveFieldOriented(this.driveAngularSpeed(xboxController));
+    return this.driveWithSetpointGeneratorFieldRelative(
+        this.driveAngularSpeed(xboxController)
+      );
+    // return this.driveFieldOriented(this.driveAngularSpeed(xboxController));
   }
 
   public Command driveDirectAngleCommand(XboxControllerWrapper xboxController) {
-    return this.driveFieldOriented(this.driveDirectAngle(xboxController));
+    return this.driveWithSetpointGeneratorFieldRelative(
+        this.driveDirectAngle(xboxController)
+      );
+    // return this.driveFieldOriented(this.driveDirectAngle(xboxController));
   }
 
   /**

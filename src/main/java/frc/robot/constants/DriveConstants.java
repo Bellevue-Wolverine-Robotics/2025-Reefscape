@@ -84,4 +84,7 @@ public final class DriveConstants {
 
   // should be inbetween -0.15 and 0.15
   public static final double kAngularVelocityCompensation = -0.1;
+
+  public static final double PATH_PLANNER_LINEAR_KP = 6.0;
+  public static final double PATH_PLANNER_ANGULAR_KP = 8.0;
 }

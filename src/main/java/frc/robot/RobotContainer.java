@@ -1,9 +1,6 @@
 package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -13,7 +10,6 @@ import frc.robot.commands.ChaseTagCommand;
 import frc.robot.constants.AprilTagConstants;
 import frc.robot.subsystems.swerve.*;
 import frc.robot.subsystems.vision.VisionSubsystem;
-import frc.robot.utils.AprilTagUtils;
 import frc.robot.utils.TriggerUtil;
 import frc.robot.utils.XboxControllerWrapper;
 import java.io.File;
@@ -120,24 +116,23 @@ public class RobotContainer {
     );
 
     driveSubsystem.setDefaultCommand(driveAngularSpeedCommand);
-
     // TriggerUtil.holdChangeDefault(driverXbox.rightTrigger(), driveSubsystem,
     // driveAngularSpeedCommand,
     // driveDirectAngleCommand);
 
-    TriggerUtil.holdChangeDefault(
-      driverXbox.b(),
-      driveSubsystem,
-      driveAngularSpeedCommand,
-      aimAtTargetCommand
-    );
+    //     TriggerUtil.holdChangeDefault(
+    //       driverXbox.b(),
+    //       driveSubsystem,
+    //       driveAngularSpeedCommand,
+    //       aimAtTargetCommand
+    //     );
 
-    TriggerUtil.holdChangeDefault(
-      driverXbox.a(),
-      driveSubsystem,
-      driveAngularSpeedCommand,
-      chaseTagCommand
-    );
+    //     TriggerUtil.holdChangeDefault(
+    //       driverXbox.a(),
+    //       driveSubsystem,
+    //       driveAngularSpeedCommand,
+    //       chaseTagCommand
+    //     );
   }
 
   private void setDefaultPathfinding(
@@ -148,43 +143,42 @@ public class RobotContainer {
     Trigger rightBumper,
     Trigger leftBumper
   ) {
-    // Map simple triggers to their corresponding poses using suppliers
+    Trigger bottomOnly = bottom.and(left.negate()).and(right.negate());
+    Trigger topOnly = top.and(left.negate()).and(right.negate());
+
+    // Map solo triggers to their corresponding poses
     setupPathfindingTrigger(
-      bottom,
+      bottomOnly,
       AprilTagConstants.getBottomTagApproachPoseSupplier()
     );
-
     setupPathfindingTrigger(
-      top,
+      topOnly,
       AprilTagConstants.getTopTagApproachPoseSupplier()
     );
 
+    // Coral station triggers remain unchanged
     setupPathfindingTrigger(
       rightBumper,
       AprilTagConstants.getRightCoralStationApproachPoseSupplier()
     );
-
     setupPathfindingTrigger(
       leftBumper,
       AprilTagConstants.getLeftCoralStationApproachPoseSupplier()
     );
 
-    // Map compound triggers to their corresponding poses
+    // Compound triggers remain the same
     setupPathfindingTrigger(
       bottom.and(left),
       AprilTagConstants.getBottomLeftTagApproachPoseSupplier()
     );
-
     setupPathfindingTrigger(
       bottom.and(right),
       AprilTagConstants.getBottomRightTagApproachPoseSupplier()
     );
-
     setupPathfindingTrigger(
       top.and(left),
       AprilTagConstants.getTopLeftTagApproachPoseSupplier()
     );
-
     setupPathfindingTrigger(
       top.and(right),
       AprilTagConstants.getTopRightTagApproachPoseSupplier()
@@ -200,6 +194,6 @@ public class RobotContainer {
     Trigger trigger,
     Supplier<Pose2d> poseSupplier
   ) {
-    trigger.onTrue(driveSubsystem.driveToPose(poseSupplier));
+    trigger.whileTrue(driveSubsystem.driveToPose(poseSupplier));
   }
 }

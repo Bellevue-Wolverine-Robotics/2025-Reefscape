@@ -1,6 +1,7 @@
 package frc.robot.constants;
 
 public class OperatorConstants {
+
   // Joystick Deadband
   public static final double kDeadzone = 0.1;
   public static final double LEFT_Y_DEADBAND = 0.1;
@@ -15,5 +16,5 @@ public class OperatorConstants {
 
   // Xbox Controller Buttons
   public static final int kControllerRightTrigger = 8;
-
+  public static final int kControllerLeftTrigger = 9;
 }

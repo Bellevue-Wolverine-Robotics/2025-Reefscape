@@ -5,13 +5,10 @@
 package frc.robot;
 
 import edu.wpi.first.hal.AllianceStationID;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.simulation.DriverStationSim;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import java.util.Optional;
 
 /**
  * The methods in this class are called automatically corresponding to each
@@ -104,12 +101,8 @@ public class Robot extends TimedRobot {
 
   /** This function is called once when the robot is first started up. */
   @Override
-  public void simulationInit() {}
-
-  /** This function is called periodically whilst in simulation. */
-  @Override
-  public void simulationPeriodic() {
-    DriverStationSim.setAllianceStationId(AllianceStationID.Red1);
+  public void simulationInit() {
+    DriverStationSim.setAllianceStationId(AllianceStationID.Blue1);
 
     // Or set alliance to red
     // DriverStationSim.setAllianceStationId(DriverStation.AllianceStationID.Red1);
@@ -118,4 +111,8 @@ public class Robot extends TimedRobot {
     DriverStationSim.setEnabled(true);
     DriverStationSim.notifyNewData();
   }
+
+  /** This function is called periodically whilst in simulation. */
+  @Override
+  public void simulationPeriodic() {}
 }
