@@ -25,11 +25,11 @@ public class VisionConstants {
   public static final double FRONT_CAMERA_HEIGHT_METERS = Units.inchesToMeters(
     FRONT_CAMERA_HEIGHT_INCHES
   );
-  public static final double FRONT_CAMERA_FORWARD_INCHES = -1;
+  public static final double FRONT_CAMERA_FORWARD_INCHES = 1;
   public static final double FRONT_CAMERA_FORWARD_METERS = Units.inchesToMeters(
     FRONT_CAMERA_FORWARD_INCHES
   );
-  public static final double FRONT_CAMERA_PITCH_DEGREES = 45;
+  public static final double FRONT_CAMERA_PITCH_DEGREES = -20;
   public static final double FRONT_CAMERA_PITCH_RADIANS =
     Units.degreesToRadians(FRONT_CAMERA_PITCH_DEGREES);
   public static final Transform3d FRONT_CAMERA_TO_ROBOT = new Transform3d(
@@ -39,7 +39,7 @@ public class VisionConstants {
       -FRONT_CAMERA_HEIGHT_METERS
     ),
     // new Translation3d(),
-    new Rotation3d(FRONT_CAMERA_PITCH_RADIANS, 0, 0)
+    new Rotation3d(0, FRONT_CAMERA_PITCH_RADIANS, 0)
   );
 
   public static final String BACK_CAMERA = "back";
@@ -52,7 +52,7 @@ public class VisionConstants {
   public static final double BACK_CAMERA_FORWARD_METERS = Units.inchesToMeters(
     BACK_CAMERA_FORWARD_INCHES
   );
-  public static final double BACK_CAMERA_YAW_DEGREES = 180;
+  public static final double BACK_CAMERA_YAW_DEGREES = 0;
   public static final double BACK_CAMERA_YAW_RADIANS = Units.degreesToRadians(
     BACK_CAMERA_YAW_DEGREES
   );
@@ -100,14 +100,14 @@ public class VisionConstants {
   public static final int MOVING_AVERAGE_WINDOW = 60;
 
   // Base error values (tuned empirically)
-  public static final double BASE_X_STD_DEV = 0.5; // meters
-  public static final double BASE_Y_STD_DEV = 0.5; // meters
+  public static final double BASE_X_STD_DEV = 0.7; // meters
+  public static final double BASE_Y_STD_DEV = 0.7; // meters
   public static final double BASE_THETA_STD_DEV = Math.toRadians(10); // radians
 
   // Scale coefficients that increase uncertainty with distance.
-  public static final double X_SCALE = 0.15;
-  public static final double Y_SCALE = 0.15;
-  public static final double THETA_SCALE = Math.toRadians(20);
+  public static final double X_SCALE = 0.4;
+  public static final double Y_SCALE = 0.4;
+  public static final double THETA_SCALE = Math.toRadians(30);
 
   /**
    * Calculates the vision measurement standard deviations as a 3x1 matrix based on the
@@ -120,8 +120,6 @@ public class VisionConstants {
    * @return a {@code Matrix<N3, N1>} containing the standard deviations for [x, y, theta].
    */
   public static Matrix<N3, N1> getEstimationStdDevs(Double distance) {
-    System.out.println(distance);
-
     double xStdDev = BASE_X_STD_DEV + X_SCALE * distance;
     double yStdDev = BASE_Y_STD_DEV + Y_SCALE * distance;
     double thetaStdDev = BASE_THETA_STD_DEV + THETA_SCALE * distance;

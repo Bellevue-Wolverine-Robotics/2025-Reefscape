@@ -9,6 +9,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.constants.VisionConstants;
+import frc.robot.utils.CoordUtils;
 import frc.robot.utils.MathUtils;
 import java.util.ArrayList;
 import java.util.List;
@@ -119,14 +120,11 @@ public class VisionSubsystem extends SubsystemBase {
 
     MultiTargetPNPResult multiTargets = latestResult.getMultiTagResult().get();
     Transform3d fieldToCamera = multiTargets.estimatedPose.best;
-    Transform3d fieldToRobot = MathUtils.addTransforms(
+
+    Pose2d robotPose = CoordUtils.projectCameraPoseToGround(
       fieldToCamera,
       cameraToRobot
     );
-    Pose2d robotPose = new Pose3d(
-      fieldToRobot.getTranslation(),
-      fieldToRobot.getRotation()
-    ).toPose2d();
 
     List<PhotonTrackedTarget> targets = latestResult.getTargets();
     if (targets.isEmpty()) {
@@ -171,6 +169,12 @@ public class VisionSubsystem extends SubsystemBase {
    * @return Optional containing EstimatedPoseStruct if successful, empty otherwise
    */
   public Optional<EstimatedPoseStruct> estimateRobotPoseVision() {
+    // System.out.println(
+    //   estimateRobotPoseVision(
+    //     frontCamera,
+    //     VisionConstants.FRONT_CAMERA_TO_ROBOT
+    //   )
+    // );
     return estimateRobotPoseVision(
       frontCamera,
       VisionConstants.FRONT_CAMERA_TO_ROBOT
@@ -245,7 +249,6 @@ public class VisionSubsystem extends SubsystemBase {
       frontCameraSim,
       VisionConstants.FRONT_CAMERA_TO_ROBOT.inverse()
     );
-
     visionSystemSim.addCamera(
       backCameraSim,
       VisionConstants.BACK_CAMERA_TO_ROBOT.inverse()

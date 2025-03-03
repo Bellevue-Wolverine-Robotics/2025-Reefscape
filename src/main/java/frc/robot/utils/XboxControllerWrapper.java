@@ -20,36 +20,54 @@ public class XboxControllerWrapper extends CommandXboxController {
     this.rightInverted = rightInverted;
   }
 
+  /**
+   * Helper method to handle axis readings with proper inversion
+   */
+  private double getAxisWithInversion(
+    int simulationAxis,
+    double superValue,
+    boolean shouldInvert
+  ) {
+    double value = Robot.isSimulation()
+      ? getRawAxis(simulationAxis)
+      : superValue;
+    return shouldInvert ? -value : value;
+  }
+
   @Override
   public double getLeftX() {
-    double value = Robot.isSimulation()
-      ? this.getRawAxis(OperatorConstants.kControllerLeftX)
-      : super.getLeftX();
-    return inverted ? -value : value;
+    return getAxisWithInversion(
+      OperatorConstants.kControllerLeftX,
+      super.getLeftX(),
+      inverted
+    );
   }
 
   @Override
   public double getLeftY() {
-    double value = Robot.isSimulation()
-      ? this.getRawAxis(OperatorConstants.kControllerLeftY)
-      : super.getLeftY();
-    return inverted ? -value : value;
+    return getAxisWithInversion(
+      OperatorConstants.kControllerLeftY,
+      super.getLeftY(),
+      inverted
+    );
   }
 
   @Override
   public double getRightX() {
-    double value = Robot.isSimulation()
-      ? this.getRawAxis(OperatorConstants.kControllerRightX)
-      : super.getRightX();
-    return rightInverted ? -value : value;
+    return getAxisWithInversion(
+      OperatorConstants.kControllerRightX,
+      super.getRightX(),
+      rightInverted
+    );
   }
 
   @Override
   public double getRightY() {
-    double value = Robot.isSimulation()
-      ? this.getRawAxis(OperatorConstants.kControllerRightY)
-      : super.getRightY();
-    return inverted ? -value : value;
+    return getAxisWithInversion(
+      OperatorConstants.kControllerRightY,
+      super.getRightY(),
+      inverted
+    );
   }
 
   @Override
@@ -57,5 +75,35 @@ public class XboxControllerWrapper extends CommandXboxController {
     return Robot.isSimulation()
       ? this.button(OperatorConstants.kControllerRightTrigger)
       : super.rightTrigger();
+  }
+
+  @Override
+  public Trigger y() {
+    return Robot.isSimulation() ? this.button(5) : super.y();
+  }
+
+  @Override
+  public Trigger b() {
+    return Robot.isSimulation() ? this.button(2) : super.b();
+  }
+
+  @Override
+  public Trigger a() {
+    return Robot.isSimulation() ? this.button(1) : super.a();
+  }
+
+  @Override
+  public Trigger x() {
+    return Robot.isSimulation() ? this.button(4) : super.x();
+  }
+
+  @Override
+  public Trigger leftBumper() {
+    return Robot.isSimulation() ? this.button(7) : super.leftBumper();
+  }
+
+  @Override
+  public Trigger rightBumper() {
+    return Robot.isSimulation() ? this.button(8) : super.rightBumper();
   }
 }

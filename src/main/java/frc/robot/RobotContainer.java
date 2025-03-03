@@ -1,5 +1,9 @@
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -7,6 +11,7 @@ import frc.robot.commands.AimTagCommand;
 import frc.robot.commands.ChaseTagCommand;
 import frc.robot.subsystems.swerve.*;
 import frc.robot.subsystems.vision.VisionSubsystem;
+import frc.robot.utils.AprilTagUtils;
 import frc.robot.utils.TriggerUtil;
 import frc.robot.utils.XboxControllerWrapper;
 import java.io.File;
@@ -122,8 +127,88 @@ public class RobotContainer {
       driveAngularSpeedCommand,
       chaseTagCommand
     );
-    // driverXbox.b().whileTrue(
-    // driveSubsystem.driveToPose(
-    // new Pose2d(new Translation2d(4, 4), Rotation2d.fromDegrees(0))));
+
+    driverXbox
+      .a()
+      .whileTrue(
+        driveSubsystem.driveToPose(
+          AprilTagUtils.getAprilTagPose(18).transformBy(
+            new Transform2d(new Translation2d(1, 0), new Rotation2d(Math.PI))
+          )
+        )
+      );
+
+    driverXbox
+      .y()
+      .whileTrue(
+        driveSubsystem.driveToPose(
+          AprilTagUtils.getAprilTagPose(21).transformBy(
+            new Transform2d(new Translation2d(1, 0), new Rotation2d(Math.PI))
+          )
+        )
+      );
+
+    driverXbox
+      .a()
+      .and(driverXbox.x())
+      .whileTrue(
+        driveSubsystem.driveToPose(
+          AprilTagUtils.getAprilTagPose(19).transformBy(
+            new Transform2d(new Translation2d(1, 0), new Rotation2d(Math.PI))
+          )
+        )
+      );
+
+    driverXbox
+      .x()
+      .and(driverXbox.y())
+      .whileTrue(
+        driveSubsystem.driveToPose(
+          AprilTagUtils.getAprilTagPose(20).transformBy(
+            new Transform2d(new Translation2d(1, 0), new Rotation2d(Math.PI))
+          )
+        )
+      );
+
+    driverXbox
+      .b()
+      .and(driverXbox.y())
+      .whileTrue(
+        driveSubsystem.driveToPose(
+          AprilTagUtils.getAprilTagPose(22).transformBy(
+            new Transform2d(new Translation2d(1, 0), new Rotation2d(Math.PI))
+          )
+        )
+      );
+
+    driverXbox
+      .b()
+      .and(driverXbox.a())
+      .whileTrue(
+        driveSubsystem.driveToPose(
+          AprilTagUtils.getAprilTagPose(17).transformBy(
+            new Transform2d(new Translation2d(1, 0), new Rotation2d(Math.PI))
+          )
+        )
+      );
+    driverXbox
+      .rightBumper()
+      .whileTrue(
+        driveSubsystem.driveToPose(
+          AprilTagUtils.getAprilTagPose(12).transformBy(
+            new Transform2d(new Translation2d(1, 0), new Rotation2d(0))
+          )
+        )
+      );
+
+    driverXbox
+      .leftBumper()
+      .whileTrue(
+        driveSubsystem.driveToPose(
+          AprilTagUtils.getAprilTagPose(13).transformBy(
+            new Transform2d(new Translation2d(1, 0), new Rotation2d(0))
+          )
+        )
+      );
   }
 }
