@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.AimTagCommand;
 import frc.robot.commands.ChaseTagCommand;
 import frc.robot.constants.AprilTagConstants;
+import frc.robot.constants.DriveConstants;
 import frc.robot.subsystems.swerve.*;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.utils.TriggerUtil;
@@ -113,6 +114,18 @@ public class RobotContainer {
       visionSubsystem,
       driveSubsystem,
       1
+    );
+
+    Command slowDriveCommand = driveSubsystem.driveAngularSpeedCommand(
+      driverXbox,
+      DriveConstants.SLOW_COEF
+    );
+
+    TriggerUtil.holdChangeDefault(
+      driverXbox.rightTrigger(),
+      driveSubsystem,
+      driveAngularSpeedCommand,
+      slowDriveCommand
     );
 
     driveSubsystem.setDefaultCommand(driveAngularSpeedCommand);

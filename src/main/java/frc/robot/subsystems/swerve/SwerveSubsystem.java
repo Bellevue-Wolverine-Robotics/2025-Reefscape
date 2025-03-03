@@ -481,6 +481,22 @@ public class SwerveSubsystem extends SubsystemBase {
     // return this.driveFieldOriented(this.driveAngularSpeed(xboxController));
   }
 
+  /**
+   * Creates a command to drive the robot with angular speed control and a speed reduction factor
+   *
+   * @param xboxController The Xbox controller to use for input
+   * @param speedFactor Factor to reduce the speed by (0-1)
+   * @return Command for reduced speed driving
+   */
+  public Command driveAngularSpeedCommand(
+    XboxControllerWrapper xboxController,
+    double speedFactor
+  ) {
+    return this.driveWithSetpointGeneratorFieldRelative(
+        this.driveAngularSpeedReduced(xboxController, speedFactor)
+      );
+  }
+
   public Command driveDirectAngleCommand(XboxControllerWrapper xboxController) {
     return this.driveWithSetpointGeneratorFieldRelative(
         this.driveDirectAngle(xboxController)
@@ -847,6 +863,27 @@ public class SwerveSubsystem extends SubsystemBase {
       () -> -xboxController.getLeftY(),
       () -> -xboxController.getLeftX()
     ).withControllerRotationAxis(() -> -xboxController.getRightX());
+  }
+
+  /**
+   * Creates a SwerveInputStream with reduced speed for precision driving
+   *
+   * @param xboxController The Xbox controller to use for input
+   * @param speedFactor The factor to reduce speed by (0-1)
+   * @return SwerveInputStream with reduced speeds
+   */
+  public SwerveInputStream driveAngularSpeedReduced(
+    XboxControllerWrapper xboxController,
+    double speedFactor
+  ) {
+    System.out.println(-xboxController.getLeftY() * speedFactor);
+    return SwerveInputStream.of(
+      this.getSwerveDrive(),
+      () -> -xboxController.getLeftY() * speedFactor,
+      () -> -xboxController.getLeftX() * speedFactor
+    ).withControllerRotationAxis(
+      () -> -xboxController.getRightX() * speedFactor
+    );
   }
 
   public SwerveInputStream driveDirectAngle(
