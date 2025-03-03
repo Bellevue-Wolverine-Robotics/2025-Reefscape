@@ -7,14 +7,17 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.AimTagCommand;
 import frc.robot.commands.ChaseTagCommand;
+import frc.robot.constants.AprilTagConstants;
 import frc.robot.subsystems.swerve.*;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.utils.AprilTagUtils;
 import frc.robot.utils.TriggerUtil;
 import frc.robot.utils.XboxControllerWrapper;
 import java.io.File;
+import java.util.function.Supplier;
 
 /**
  * Where most of the structure of the robot, including subsystems, commands, and
@@ -50,6 +53,14 @@ public class RobotContainer {
 
   private void configureBindings() {
     setDefaultDriveBehavior();
+    setDefaultPathfinding(
+      driverXbox.y(),
+      driverXbox.b(),
+      driverXbox.a(),
+      driverXbox.x(),
+      driverXbox.rightBumper(),
+      driverXbox.leftBumper()
+    );
     // driverXbox.rightBumper().whileTrue(
     // driveAngularSpeedCommand
     // .andThen(() -> {
@@ -127,88 +138,68 @@ public class RobotContainer {
       driveAngularSpeedCommand,
       chaseTagCommand
     );
+  }
 
-    driverXbox
-      .a()
-      .whileTrue(
-        driveSubsystem.driveToPose(
-          AprilTagUtils.getAprilTagPose(18).transformBy(
-            new Transform2d(new Translation2d(1, 0), new Rotation2d(Math.PI))
-          )
-        )
-      );
+  private void setDefaultPathfinding(
+    Trigger top,
+    Trigger right,
+    Trigger bottom,
+    Trigger left,
+    Trigger rightBumper,
+    Trigger leftBumper
+  ) {
+    // Map simple triggers to their corresponding poses using suppliers
+    setupPathfindingTrigger(
+      bottom,
+      AprilTagConstants.getBottomTagApproachPoseSupplier()
+    );
 
-    driverXbox
-      .y()
-      .whileTrue(
-        driveSubsystem.driveToPose(
-          AprilTagUtils.getAprilTagPose(21).transformBy(
-            new Transform2d(new Translation2d(1, 0), new Rotation2d(Math.PI))
-          )
-        )
-      );
+    setupPathfindingTrigger(
+      top,
+      AprilTagConstants.getTopTagApproachPoseSupplier()
+    );
 
-    driverXbox
-      .a()
-      .and(driverXbox.x())
-      .whileTrue(
-        driveSubsystem.driveToPose(
-          AprilTagUtils.getAprilTagPose(19).transformBy(
-            new Transform2d(new Translation2d(1, 0), new Rotation2d(Math.PI))
-          )
-        )
-      );
+    setupPathfindingTrigger(
+      rightBumper,
+      AprilTagConstants.getRightCoralStationApproachPoseSupplier()
+    );
 
-    driverXbox
-      .x()
-      .and(driverXbox.y())
-      .whileTrue(
-        driveSubsystem.driveToPose(
-          AprilTagUtils.getAprilTagPose(20).transformBy(
-            new Transform2d(new Translation2d(1, 0), new Rotation2d(Math.PI))
-          )
-        )
-      );
+    setupPathfindingTrigger(
+      leftBumper,
+      AprilTagConstants.getLeftCoralStationApproachPoseSupplier()
+    );
 
-    driverXbox
-      .b()
-      .and(driverXbox.y())
-      .whileTrue(
-        driveSubsystem.driveToPose(
-          AprilTagUtils.getAprilTagPose(22).transformBy(
-            new Transform2d(new Translation2d(1, 0), new Rotation2d(Math.PI))
-          )
-        )
-      );
+    // Map compound triggers to their corresponding poses
+    setupPathfindingTrigger(
+      bottom.and(left),
+      AprilTagConstants.getBottomLeftTagApproachPoseSupplier()
+    );
 
-    driverXbox
-      .b()
-      .and(driverXbox.a())
-      .whileTrue(
-        driveSubsystem.driveToPose(
-          AprilTagUtils.getAprilTagPose(17).transformBy(
-            new Transform2d(new Translation2d(1, 0), new Rotation2d(Math.PI))
-          )
-        )
-      );
-    driverXbox
-      .rightBumper()
-      .whileTrue(
-        driveSubsystem.driveToPose(
-          AprilTagUtils.getAprilTagPose(12).transformBy(
-            new Transform2d(new Translation2d(1, 0), new Rotation2d(0))
-          )
-        )
-      );
+    setupPathfindingTrigger(
+      bottom.and(right),
+      AprilTagConstants.getBottomRightTagApproachPoseSupplier()
+    );
 
-    driverXbox
-      .leftBumper()
-      .whileTrue(
-        driveSubsystem.driveToPose(
-          AprilTagUtils.getAprilTagPose(13).transformBy(
-            new Transform2d(new Translation2d(1, 0), new Rotation2d(0))
-          )
-        )
-      );
+    setupPathfindingTrigger(
+      top.and(left),
+      AprilTagConstants.getTopLeftTagApproachPoseSupplier()
+    );
+
+    setupPathfindingTrigger(
+      top.and(right),
+      AprilTagConstants.getTopRightTagApproachPoseSupplier()
+    );
+  }
+
+  /**
+   * Helper method to set up a pathfinding command for a trigger using a pose supplier
+   * @param trigger The trigger that activates the command
+   * @param poseSupplier The supplier that provides the target pose when needed
+   */
+  private void setupPathfindingTrigger(
+    Trigger trigger,
+    Supplier<Pose2d> poseSupplier
+  ) {
+    trigger.onTrue(driveSubsystem.driveToPose(poseSupplier));
   }
 }

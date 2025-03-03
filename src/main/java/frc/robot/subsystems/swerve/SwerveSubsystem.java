@@ -277,10 +277,11 @@ public class SwerveSubsystem extends SubsystemBase {
   /**
    * Use PathPlanner Path finding to go to a point on the field.
    *
-   * @param pose Target {@link Pose2d} to go to.
+   * @param poseSupplier Target {@link Supplier<Pose2d>} to go to.
    * @return PathFinding command
    */
-  public Command driveToPose(Pose2d pose) {
+  public Command driveToPose(Supplier<Pose2d> poseSupplier) {
+    Pose2d pose = poseSupplier.get();
     PathConstraints constraints = new PathConstraints(
       swerveDrive.getMaximumChassisVelocity(),
       4.0,
