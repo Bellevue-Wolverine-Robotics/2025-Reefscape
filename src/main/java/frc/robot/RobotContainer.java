@@ -1,59 +1,38 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot;
-import frc.robot.*; //import all to avoid conflicts.
-import frc.robot.subsystems.LEDModeSubsystem;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 
-/**
- * This class is where the bulk of the robot should be declared. Since Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
- * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
- * subsystems, commands, and trigger mappings) should be declared here.
- */
+import frc.robot.constants.ElevatorConstants;
+import frc.robot.constants.OperatorConstants;
+import frc.robot.subsystems.CoralSubsystem;
+import frc.robot.subsystems.ElevatorSubsystem;
+import frc.robot.subsystems.LEDModeSubsystem;
+
 public class RobotContainer {
-  private LEDModeSubsystem ledSubsystem = new LEDModeSubsystem();
+    private final CoralSubsystem coralSubsystem = new CoralSubsystem();
+    private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
+    private final LEDModeSubsystem ledSubsystem = new LEDModeSubsystem();
 
-  private CommandXboxController xboxController = new CommandXboxController(0);
+    private final CommandXboxController driverController = new CommandXboxController(OperatorConstants.DRIVER_CONTROLLER_PORT);
+    private final CommandXboxController operatorController = new CommandXboxController(OperatorConstants.OPERATOR_CONTROLLER_PORT);
 
+    public RobotContainer() {
+        configureBindings();
 
-  /** The container for the robot. Contains subsystems, OI devices, and commands. */
-  public RobotContainer() {
-    // Configure the trigger bindings
-    configureBindings();
+        coralSubsystem.register();
+        elevatorSubsystem.register();
+        ledSubsystem.register();
+    }
 
-    CommandScheduler.getInstance().registerSubsystem(ledSubsystem);
-  }
+    private void configureBindings() {
+        driverController.leftTrigger().whileTrue(elevatorSubsystem.holdScoringLevel());
+    
+        operatorController.x().onTrue(elevatorSubsystem.setScoringPosition(ElevatorConstants.LEVEL_ONE));
+        operatorController.y().onTrue(elevatorSubsystem.setScoringPosition(ElevatorConstants.LEVEL_TWO));
+        operatorController.b().onTrue(elevatorSubsystem.setScoringPosition(ElevatorConstants.LEVEL_THREE));
+        operatorController.a().onTrue(elevatorSubsystem.setScoringPosition(ElevatorConstants.LEVEL_FOUR));
+        operatorController.leftBumper().onTrue(elevatorSubsystem.setScoringPosition(ElevatorConstants.BOTTOM_LEVEL));
 
-  /**
-   * Use this method to define your trigger->command mappings. Triggers can be created via the
-   * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary
-   * predicate, or via the named factories in {@link
-   * edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses for {@link
-   * CommandXboxController Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller
-   * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
-   * joysticks}.
-   */
-  private void configureBindings() {
-    //xboxController.a().onTrue(Commands.runOnce(() -> ledSubsystem.setHasCoral(!ledSubsystem.hasCoral)));
-    //xboxController.b().onTrue(Commands.runOnce(() -> ledSubsystem.setAprilTagTracked(!ledSubsystem.isTrackingAprilTag)));
-  }
-
-  /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
-   *
-   * @return the command to run in autonomous
-   */
-
-   /*
-  public Command getAutonomousCommand() {
-    // An example command will be run in autonomous
-    return Autos.exampleAuto(m_exampleSubsystem);
-  }
-  */
+        operatorController.leftTrigger().whileTrue(coralSubsystem.unjam());
+        operatorController.rightTrigger().whileTrue(coralSubsystem.eject());
+    }
 }
