@@ -1,20 +1,27 @@
 package frc.robot;
-
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.AimTagCommand;
-import frc.robot.commands.ChaseTagCommand;
-import frc.robot.constants.AprilTagConstants;
-import frc.robot.constants.DriveConstants;
-import frc.robot.subsystems.swerve.*;
-import frc.robot.subsystems.vision.VisionSubsystem;
-import frc.robot.utils.TriggerUtil;
-import frc.robot.utils.XboxControllerWrapper;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.math.geometry.Pose2d;
+
 import java.io.File;
 import java.util.function.Supplier;
+
+import frc.robot.commands.AimTagCommand;
+import frc.robot.commands.ChaseTagCommand;
+import frc.robot.utils.TriggerUtil;
+import frc.robot.utils.XboxControllerWrapper;
+import frc.robot.constants.AprilTagConstants;
+import frc.robot.constants.DriveConstants;
+import frc.robot.constants.ElevatorConstants;
+import frc.robot.constants.OperatorConstants;
+import frc.robot.subsystems.CoralSubsystem;
+import frc.robot.subsystems.ElevatorSubsystem;
+import frc.robot.subsystems.LEDModeSubsystem;
+import frc.robot.subsystems.swerve.SwerveSubsystem;
+import frc.robot.subsystems.vision.VisionSubsystem;
 
 /**
  * Where most of the structure of the robot, including subsystems, commands, and
@@ -35,6 +42,13 @@ public class RobotContainer {
     visionSubsystem
   );
 
+  private final CoralSubsystem coralSubsystem = new CoralSubsystem();
+  private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
+  private final LEDModeSubsystem ledSubsystem = new LEDModeSubsystem();
+
+  private final CommandXboxController driverController = new CommandXboxController(OperatorConstants.DRIVER_CONTROLLER_PORT);
+  private final CommandXboxController operatorController = new CommandXboxController(OperatorConstants.OPERATOR_CONTROLLER_PORT);
+
   // private final VisionSubsystem visionSubsystem = new VisionSim(() ->
   //   driveSubsystem.getPose()
   // );
@@ -45,7 +59,12 @@ public class RobotContainer {
   public RobotContainer() {
     // Configure the trigger bindings
     configureBindings();
+
     DriverStation.silenceJoystickConnectionWarning(true);
+
+    coralSubsystem.register();
+    elevatorSubsystem.register();
+    ledSubsystem.register();
   }
 
   private void configureBindings() {
@@ -58,6 +77,17 @@ public class RobotContainer {
       driverXbox.rightBumper(),
       driverXbox.leftBumper()
     );
+
+    driverController.leftTrigger().whileTrue(elevatorSubsystem.holdScoringLevel());
+  
+    operatorController.x().onTrue(elevatorSubsystem.setScoringPosition(ElevatorConstants.LEVEL_ONE));
+    operatorController.y().onTrue(elevatorSubsystem.setScoringPosition(ElevatorConstants.LEVEL_TWO));
+    operatorController.b().onTrue(elevatorSubsystem.setScoringPosition(ElevatorConstants.LEVEL_THREE));
+    operatorController.a().onTrue(elevatorSubsystem.setScoringPosition(ElevatorConstants.LEVEL_FOUR));
+    operatorController.leftBumper().onTrue(elevatorSubsystem.setScoringPosition(ElevatorConstants.BOTTOM_LEVEL));
+
+    operatorController.leftTrigger().whileTrue(coralSubsystem.unjam());
+    operatorController.rightTrigger().whileTrue(coralSubsystem.eject());
     // driverXbox.rightBumper().whileTrue(
     // driveAngularSpeedCommand
     // .andThen(() -> {

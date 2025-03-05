@@ -13,7 +13,7 @@ Andrew's work on advantage kit
 ## Digital I/O
 | Port  | Device                 |
 |:-----:|------------------------|
-| 0     |                        |
+| 0     | Coral Limit Switch     |
 | 1     |                        |
 | 2     |                        |
 | 3     |                        |
@@ -68,7 +68,7 @@ Andrew's work on advantage kit
 ## Intake CAN Devices (IDs 20-29)
 | Device           | CAN ID   |
 |------------------|:--------:|
-|                  | 20       |
+| Intake/Outtake   | 20       |
 |                  | 21       |
 |                  | 22       |
 |                  | 23       |
@@ -82,8 +82,8 @@ Andrew's work on advantage kit
 ## Game Piece Transport Devices (IDs 30-39)
 | Device           | CAN ID   |
 |------------------|:--------:|
-|                  | 30       |
-|                  | 31       |
+| Elevator Up      | 30       |
+| Elevator Down    | 31       |
 |                  | 32       |
 |                  | 33       |
 |                  | 34       |
