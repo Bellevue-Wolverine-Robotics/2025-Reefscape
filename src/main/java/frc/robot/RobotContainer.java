@@ -1,25 +1,26 @@
 package frc.robot;
-
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 import frc.robot.constants.ElevatorConstants;
 import frc.robot.constants.OperatorConstants;
 import frc.robot.subsystems.CoralSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
+import frc.robot.subsystems.LEDModeSubsystem;
 
 public class RobotContainer {
-    private final CoralSubsystem coralSubsystem;
+    private final CoralSubsystem coralSubsystem = new CoralSubsystem();
     private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
+    private final LEDModeSubsystem ledSubsystem = new LEDModeSubsystem();
 
     private final CommandXboxController driverController = new CommandXboxController(OperatorConstants.DRIVER_CONTROLLER_PORT);
     private final CommandXboxController operatorController = new CommandXboxController(OperatorConstants.OPERATOR_CONTROLLER_PORT);
 
     public RobotContainer() {
-        coralSubsystem = new CoralSubsystem();
         configureBindings();
 
         coralSubsystem.register();
-         elevatorSubsystem.register();
+        elevatorSubsystem.register();
+        ledSubsystem.register();
     }
 
     private void configureBindings() {

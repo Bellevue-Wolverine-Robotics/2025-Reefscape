@@ -38,4 +38,10 @@ public class CoralSubsystem extends SubsystemBase {
     public Command unjam() {
         return Commands.run(() -> motor.set(CoralConstants.UNJAM_SPEED), this);
     }
+
+    @Override
+    public void periodic() {
+        var loaded = limitSwitch.get();
+        LEDModeSubsystem.setHasCoral(loaded);
+    }
 }
