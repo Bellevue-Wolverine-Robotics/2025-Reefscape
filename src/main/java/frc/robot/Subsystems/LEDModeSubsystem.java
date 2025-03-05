@@ -17,8 +17,8 @@ import frc.robot.constants.LEDConstants;
  * Controls LED colors/patterns for states like game piece detection, AprilTag tracking, and robot status (disabled, enabled).
  */
 public class LEDModeSubsystem extends SubsystemBase {
-    public static boolean hasCoral = false;       // 'Coral' game piece detected
-    public static boolean isTrackingAprilTag = false; // AprilTag tracking status
+    private static boolean hasCoral = false;       // 'Coral' game piece detected
+    private static boolean isTrackingAprilTag = false; // AprilTag tracking status
 
     // LED Hardware
     private AddressableLED led; // LED strip
@@ -59,7 +59,7 @@ public class LEDModeSubsystem extends SubsystemBase {
      * Sets 'Coral' sensor status.
      * @param coralDetected True if detected, false otherwise.
      */
-    public void setHasCoral(boolean coralDetected) {
+    public static void setHasCoral(boolean coralDetected) {
         hasCoral = coralDetected;
     }
 
@@ -67,7 +67,7 @@ public class LEDModeSubsystem extends SubsystemBase {
      * Sets AprilTag tracking status.
      * @param aprilTagIsTracked True if tracked, false otherwise.
      */
-    public void setAprilTagTracked(boolean aprilTagTracked) {
+    public static void setAprilTagTracked(boolean aprilTagTracked) {
         isTrackingAprilTag = aprilTagTracked;
     }
 

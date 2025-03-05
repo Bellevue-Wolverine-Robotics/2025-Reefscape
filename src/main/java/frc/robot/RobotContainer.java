@@ -40,8 +40,8 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    xboxController.a().onTrue(Commands.runOnce(() -> ledSubsystem.setHasCoral(!ledSubsystem.hasCoral)));
-    xboxController.b().onTrue(Commands.runOnce(() -> ledSubsystem.setAprilTagTracked(!ledSubsystem.isTrackingAprilTag)));
+    //xboxController.a().onTrue(Commands.runOnce(() -> ledSubsystem.setHasCoral(!ledSubsystem.hasCoral)));
+    //xboxController.b().onTrue(Commands.runOnce(() -> ledSubsystem.setAprilTagTracked(!ledSubsystem.isTrackingAprilTag)));
   }
 
   /**
