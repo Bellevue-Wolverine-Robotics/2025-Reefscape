@@ -4,6 +4,8 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.math.controller.PIDController;
 
 import com.revrobotics.spark.SparkMax;
@@ -15,48 +17,52 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import frc.robot.constants.ElevatorConstants;
 
 public class ElevatorSubsystem extends SubsystemBase {
-    private final DigitalInput bottomLimitSwitch = new DigitalInput(ElevatorConstants.BOTTOM_LIMIT_SWITCH_PORT);
-    private final DigitalInput topLimitSwitch = new DigitalInput(ElevatorConstants.TOP_LIMIT_SWITCH_PORT);
-    private final SparkMax leftMotor = new SparkMax(ElevatorConstants.LEFT_MOTOR_ID, MotorType.kBrushless);
-    private final SparkMax rightMotor = new SparkMax(ElevatorConstants.RIGHT_MOTOR_ID, MotorType.kBrushless);
+    private final SparkMax leaderMotor = new SparkMax(ElevatorConstants.UP_MOTOR_ID, MotorType.kBrushless);
+    private final SparkMax followerMotor = new SparkMax(ElevatorConstants.DOWN_MOTOR_ID, MotorType.kBrushless);
+    private final DigitalInput limitSwitch = new DigitalInput(ElevatorConstants.LIMIT_SWITCH_PORT);
     private final PIDController pid = new PIDController(ElevatorConstants.KP, ElevatorConstants.KI, ElevatorConstants.KD);
-    private final Encoder encoder = new Encoder(1, 2, false, EncodingType.k4X);
+    private final Encoder encoder = new Encoder(ElevatorConstants.ENCODER_CHANNEL_A, ElevatorConstants.ENCODER_CHANNEL_B, false, EncodingType.k4X);
 
-    private double nextPosition = 0.0d;
-    private double targetPosition = 0.0d;
+    private double scoringPosition = 0.0d;
 
     public ElevatorSubsystem() {
-        var config = new SparkMaxConfig();
-        config.idleMode(SparkMaxConfig.IdleMode.kBrake);
-        leftMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        rightMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        var leaderConfig = new SparkMaxConfig();
+        leaderConfig.idleMode(SparkMaxConfig.IdleMode.kBrake);
+        leaderMotor.configure(leaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-        pid.setTolerance(ElevatorConstants.ERROR_TOLERANCE, ElevatorConstants.ERROR_DERIVATIVE_TOLERANCE);
+        var followerConfig = new SparkMaxConfig();
+        followerConfig.idleMode(SparkMaxConfig.IdleMode.kBrake);
+        followerConfig.follow(leaderMotor);
+        followerMotor.configure(followerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+        pid.setTolerance(ElevatorConstants.ERROR_TOLERANCE);
         encoder.setDistancePerPulse(ElevatorConstants.DISTANCE_PER_PULSE);
+        this.setDefaultCommand(holdIntakeLevel());
     }
 
-    public void setTarget(double position) {
-        nextPosition = position;
+    private Command holdIntakeLevel() {
+        return Commands.run(() -> holdPosition(ElevatorConstants.INTAKE_LEVEL), this);
     }
 
-    public void adjust() {
-        targetPosition = nextPosition;
+    public Command holdScoringLevel() {
+        return Commands.run(() -> holdPosition(scoringPosition), this);
     }
 
-    @Override
-    public void periodic() {
-        var speed = pid.calculate(encoder.getDistance(), targetPosition);
+    public Command setScoringPosition(double position) {
+        return Commands.runOnce(() -> scoringPosition = position);
+    }
 
-        if (bottomLimitSwitch.get()) {
+    private void holdPosition(double position) {
+        var speed = pid.calculate(encoder.getDistance(), position);
+
+        if (limitSwitch.get()) {
             encoder.reset();
         }
 
-        if (bottomLimitSwitch.get() && speed < 0 || topLimitSwitch.get() & speed > 0) {
-            leftMotor.stopMotor();
-            rightMotor.stopMotor();
+        if (limitSwitch.get() && speed < 0) {
+            leaderMotor.stopMotor();
         } else {
-            leftMotor.set(speed);
-            rightMotor.set(speed);
+            leaderMotor.set(speed);
         }
     }
 }

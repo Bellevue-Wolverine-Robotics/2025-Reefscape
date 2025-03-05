@@ -1,6 +1,5 @@
 package frc.robot;
 
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 import frc.robot.constants.ElevatorConstants;
@@ -9,28 +8,30 @@ import frc.robot.subsystems.CoralSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 
 public class RobotContainer {
-    private final CoralSubsystem coralSubsystem = new CoralSubsystem();
+    private final CoralSubsystem coralSubsystem;
     private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
 
-    private final CommandXboxController driverController = new CommandXboxController(OperatorConstants.DRIVE_CONTROLLER_PORT);
-    private final CommandXboxController elevatorController = new CommandXboxController(OperatorConstants.ELEVATOR_CONTROLLER_PORT);
+    private final CommandXboxController driverController = new CommandXboxController(OperatorConstants.DRIVER_CONTROLLER_PORT);
+    private final CommandXboxController operatorController = new CommandXboxController(OperatorConstants.OPERATOR_CONTROLLER_PORT);
 
     public RobotContainer() {
+        coralSubsystem = new CoralSubsystem();
         configureBindings();
+
+        coralSubsystem.register();
+         elevatorSubsystem.register();
     }
 
     private void configureBindings() {
-        driverController.x().onTrue(Commands.runOnce(() -> elevatorSubsystem.adjust()));
+        driverController.leftTrigger().whileTrue(elevatorSubsystem.holdScoringLevel());
+    
+        operatorController.x().onTrue(elevatorSubsystem.setScoringPosition(ElevatorConstants.LEVEL_ONE));
+        operatorController.y().onTrue(elevatorSubsystem.setScoringPosition(ElevatorConstants.LEVEL_TWO));
+        operatorController.b().onTrue(elevatorSubsystem.setScoringPosition(ElevatorConstants.LEVEL_THREE));
+        operatorController.a().onTrue(elevatorSubsystem.setScoringPosition(ElevatorConstants.LEVEL_FOUR));
+        operatorController.leftBumper().onTrue(elevatorSubsystem.setScoringPosition(ElevatorConstants.BOTTOM_LEVEL));
 
-        elevatorController.x().onTrue(Commands.runOnce(() -> elevatorSubsystem.setTarget(ElevatorConstants.LEVEL_ONE)));
-        elevatorController.y().onTrue(Commands.runOnce(() -> elevatorSubsystem.setTarget(ElevatorConstants.LEVEL_TWO)));
-        elevatorController.b().onTrue(Commands.runOnce(() -> elevatorSubsystem.setTarget(ElevatorConstants.LEVEL_THREE)));
-        elevatorController.a().onTrue(Commands.runOnce(() -> elevatorSubsystem.setTarget(ElevatorConstants.LEVEL_FOUR)));
-        elevatorController.leftBumper().onTrue(Commands.runOnce(() -> elevatorSubsystem.setTarget(ElevatorConstants.INTAKE_LEVEL)));
-
-        elevatorController.leftTrigger().onTrue(Commands.runOnce(() -> coralSubsystem.unjam(true)));
-        elevatorController.leftTrigger().onFalse(Commands.runOnce(() -> coralSubsystem.unjam(false)));
-        elevatorController.rightTrigger().onTrue(Commands.runOnce(() -> coralSubsystem.eject(true)));
-        elevatorController.rightTrigger().onFalse(Commands.runOnce(() -> coralSubsystem.eject(true)));
+        operatorController.leftTrigger().whileTrue(coralSubsystem.unjam());
+        operatorController.rightTrigger().whileTrue(coralSubsystem.eject());
     }
 }
