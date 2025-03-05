@@ -5,7 +5,7 @@
 ## Digital I/O
 | Port  | Device                 |
 |:-----:|------------------------|
-| 0     |                        |
+| 0     | Coral Limit Switch     |
 | 1     |                        |
 | 2     |                        |
 | 3     |                        |
