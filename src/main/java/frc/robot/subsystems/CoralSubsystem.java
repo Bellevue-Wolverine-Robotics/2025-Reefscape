@@ -9,7 +9,6 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import frc.robot.constants.CoralConstants;
-import frc.robot.subsystems.LEDModeSubsystem;
 
 public class CoralSubsystem extends SubsystemBase {
     private final SparkMax motor = new SparkMax(CoralConstants.MOTOR_ID, MotorType.kBrushless);
