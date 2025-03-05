@@ -17,7 +17,6 @@ public final class LEDConstants {
     public static final int LENGTH = 150;
 
     public final class Patterns {
-        // slightly brighter(?) yellow
         public static final LEDPattern HAS_CORAL = LEDPattern.solid(new Color("#FFFF00"));
         public static final LEDPattern NO_CORAL = LEDPattern.solid(Color.kBlue);
         public static final LEDPattern DISABLED = LEDPattern.rainbow(255, 255).scrollAtAbsoluteSpeed(MetersPerSecond.of(1.0d), LED_SPACING);
