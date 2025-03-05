@@ -9,6 +9,7 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import frc.robot.constants.CoralConstants;
+import frc.robot.subsystems.LEDModeSubsystem;
 
 public class CoralSubsystem extends SubsystemBase {
     private final SparkMax motor = new SparkMax(CoralConstants.MOTOR_ID, MotorType.kBrushless);
@@ -37,5 +38,11 @@ public class CoralSubsystem extends SubsystemBase {
 
     public Command unjam() {
         return Commands.run(() -> motor.set(CoralConstants.UNJAM_SPEED), this);
+    }
+
+    @Override
+    public void periodic() {
+        var loaded = limitSwitch.get();
+        LEDModeSubsystem.setHasCoral(loaded);
     }
 }

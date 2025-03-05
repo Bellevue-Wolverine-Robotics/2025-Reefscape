@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
 import frc.robot.constants.LEDConstants;
 
 /**
@@ -14,8 +15,8 @@ import frc.robot.constants.LEDConstants;
 public class LEDModeSubsystem extends SubsystemBase {
     private static boolean hasCoral = false;
     private static boolean isTrackingAprilTag = false;
-    private AddressableLED led = new AddressableLED(LEDConstants.PWM_PORT); // LED strip
-    private AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(LEDConstants.LENGTH); // LED colors buffer
+    private final AddressableLED led = new AddressableLED(LEDConstants.PWM_PORT); // LED strip
+    private final AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(LEDConstants.LENGTH); // LED colors buffer
 
     /**
      * LEDModeSubsystem constructor.
