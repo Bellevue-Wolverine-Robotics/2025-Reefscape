@@ -13,8 +13,8 @@ public final class LEDConstants {
     public static final Time BLINK_SPEED = Seconds.of(0.25d);
     public static final Distance LED_SPACING = Inches.of(1.0d);
 
-    public static final int PWM_PORT = 1;
-    public static final int LENGTH = 150;
+    public static final int PWM_PORT = 9;
+    public static final int LENGTH = 9;
 
     public final class Patterns {
         public static final LEDPattern HAS_CORAL = LEDPattern.solid(new Color("#FFFF00"));

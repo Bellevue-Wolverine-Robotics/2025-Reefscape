@@ -15,10 +15,10 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import frc.robot.constants.ElevatorConstants;
+import frc.robot.constants.OperatorConstants;
 
 public class ElevatorSubsystem extends SubsystemBase {
-    private final SparkMax leaderMotor = new SparkMax(ElevatorConstants.UP_MOTOR_ID, MotorType.kBrushless);
-    private final SparkMax followerMotor = new SparkMax(ElevatorConstants.DOWN_MOTOR_ID, MotorType.kBrushless);
+    private final SparkMax motor = new SparkMax(ElevatorConstants.MOTOR_ID, MotorType.kBrushless);
     private final DigitalInput limitSwitch = new DigitalInput(ElevatorConstants.LIMIT_SWITCH_PORT);
     private final PIDController pid = new PIDController(ElevatorConstants.KP, ElevatorConstants.KI, ElevatorConstants.KD);
     private final Encoder encoder = new Encoder(ElevatorConstants.ENCODER_CHANNEL_A, ElevatorConstants.ENCODER_CHANNEL_B, false, EncodingType.k4X);
@@ -26,33 +26,49 @@ public class ElevatorSubsystem extends SubsystemBase {
     private double scoringPosition = 0.0d;
 
     public ElevatorSubsystem() {
-        var leaderConfig = new SparkMaxConfig();
-        leaderConfig.idleMode(SparkMaxConfig.IdleMode.kBrake);
-        leaderMotor.configure(leaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
-        var followerConfig = new SparkMaxConfig();
-        followerConfig.idleMode(SparkMaxConfig.IdleMode.kBrake);
-        followerConfig.follow(leaderMotor);
-        followerMotor.configure(followerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        var config = new SparkMaxConfig();
+        config.idleMode(SparkMaxConfig.IdleMode.kBrake);
+        motor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         pid.setTolerance(ElevatorConstants.ERROR_TOLERANCE);
         encoder.setDistancePerPulse(ElevatorConstants.DISTANCE_PER_PULSE);
-        this.setDefaultCommand(holdIntakeLevel());
+
+        this.setDefaultCommand(maintainPosition());
     }
 
-    private Command holdIntakeLevel() {
-        return Commands.run(() -> holdPosition(ElevatorConstants.INTAKE_LEVEL), this);
+    private Command maintainPosition() {
+        return Commands.run(
+            () -> {
+                switch (OperatorConstants.CONTROL_MODE) {
+                    case FULL_OPERATOR:
+                        goToPosition(scoringPosition);
+                        break;
+                    case PARTIAL_OPERATOR:
+                        goToPosition(ElevatorConstants.INTAKE_LEVEL);
+                        break;
+                }
+            },
+            this
+        );
     }
 
-    public Command holdScoringLevel() {
-        return Commands.run(() -> holdPosition(scoringPosition), this);
+    public Command holdScoringPosition() {
+        return Commands.run(() -> goToPosition(scoringPosition), this);
     }
 
     public Command setScoringPosition(double position) {
         return Commands.runOnce(() -> scoringPosition = position);
     }
 
-    private void holdPosition(double position) {
+    public Command decreaseScoringPosition() {
+        return Commands.runOnce(() -> scoringPosition -= ElevatorConstants.INCREMENT_DISTANCE);
+    }
+
+    public Command increaseScoringPosition() {
+        return Commands.runOnce(() -> scoringPosition += ElevatorConstants.INCREMENT_DISTANCE);
+    }
+
+    private void goToPosition(double position) {
         var speed = pid.calculate(encoder.getDistance(), position);
 
         if (limitSwitch.get()) {
@@ -60,9 +76,9 @@ public class ElevatorSubsystem extends SubsystemBase {
         }
 
         if (limitSwitch.get() && speed < 0) {
-            leaderMotor.stopMotor();
+            motor.stopMotor();
         } else {
-            leaderMotor.set(speed);
+            motor.set(speed);
         }
     }
 }

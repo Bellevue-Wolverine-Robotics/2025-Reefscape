@@ -14,9 +14,9 @@ Andrew's work on advantage kit
 | Port  | Device                 |
 |:-----:|------------------------|
 | 0     | Coral Limit Switch     |
-| 1     |                        |
-| 2     |                        |
-| 3     |                        |
+| 1     | Bore Encoder Channel A |
+| 2     | Bore Encoder Channel B |
+| 3     | Elevator Limit Switch  |
 | 4     |                        |
 | 5     |                        |
 | 6     |                        |
@@ -36,7 +36,7 @@ Andrew's work on advantage kit
 | 6     |                        |
 | 7     |                        |
 | 8     |                        |
-| 9     |                        |
+| 9     | LED Lights             |
 
 ## Relay
 | Port  | Device                 |
@@ -65,10 +65,10 @@ Andrew's work on advantage kit
 | Back Left (BL)   | 7              | 8              | 9          |
 | Back Right (BR)  | 10             | 11             | 12         |
 
-## Intake CAN Devices (IDs 20-29)
+## Coral CAN Devices (IDs 20-29)
 | Device           | CAN ID   |
 |------------------|:--------:|
-| Intake/Outtake   | 20       |
+| Intake & Outake  | 20       |
 |                  | 21       |
 |                  | 22       |
 |                  | 23       |
@@ -79,11 +79,11 @@ Andrew's work on advantage kit
 |                  | 28       |
 |                  | 29       |
 
-## Game Piece Transport Devices (IDs 30-39)
+## Elevator CAN Devices (IDs 30-39)
 | Device           | CAN ID   |
 |------------------|:--------:|
-| Elevator Up      | 30       |
-| Elevator Down    | 31       |
+| Motor            | 30       |
+|                  | 31       |
 |                  | 32       |
 |                  | 33       |
 |                  | 34       |
