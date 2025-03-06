@@ -15,6 +15,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import frc.robot.constants.ElevatorConstants;
+import frc.robot.constants.OperatorConstants;
 
 public class ElevatorSubsystem extends SubsystemBase {
     private final SparkMax motor = new SparkMax(ElevatorConstants.MOTOR_ID, MotorType.kBrushless);
@@ -32,22 +33,42 @@ public class ElevatorSubsystem extends SubsystemBase {
         pid.setTolerance(ElevatorConstants.ERROR_TOLERANCE);
         encoder.setDistancePerPulse(ElevatorConstants.DISTANCE_PER_PULSE);
 
-        this.setDefaultCommand(holdIntakeLevel());
+        this.setDefaultCommand(maintainPosition());
     }
 
-    private Command holdIntakeLevel() {
-        return Commands.run(() -> holdPosition(ElevatorConstants.INTAKE_LEVEL), this);
+    private Command maintainPosition() {
+        return Commands.run(
+            () -> {
+                switch (OperatorConstants.CONTROL_MODE) {
+                    case FULL_OPERATOR:
+                        goToPosition(scoringPosition);
+                        break;
+                    case PARTIAL_OPERATOR:
+                        goToPosition(ElevatorConstants.INTAKE_LEVEL);
+                        break;
+                }
+            },
+            this
+        );
     }
 
-    public Command holdScoringLevel() {
-        return Commands.run(() -> holdPosition(scoringPosition), this);
+    public Command holdScoringPosition() {
+        return Commands.run(() -> goToPosition(scoringPosition), this);
     }
 
     public Command setScoringPosition(double position) {
         return Commands.runOnce(() -> scoringPosition = position);
     }
 
-    private void holdPosition(double position) {
+    public Command decreaseScoringPosition() {
+        return Commands.runOnce(() -> scoringPosition -= ElevatorConstants.INCREMENT_DISTANCE);
+    }
+
+    public Command increaseScoringPosition() {
+        return Commands.runOnce(() -> scoringPosition += ElevatorConstants.INCREMENT_DISTANCE);
+    }
+
+    private void goToPosition(double position) {
         var speed = pid.calculate(encoder.getDistance(), position);
 
         if (limitSwitch.get()) {

@@ -27,8 +27,8 @@
 | 5     |                        |
 | 6     |                        |
 | 7     |                        |
-| 8     | LED Lights Left        |
-| 9     | LED Lights Right       |
+| 8     |                        |
+| 9     | LED Lights             |
 
 ## Relay
 | Port  | Device                 |
