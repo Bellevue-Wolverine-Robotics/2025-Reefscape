@@ -74,8 +74,8 @@
 ## Elevator CAN Devices (IDs 30-39)
 | Device           | CAN ID   |
 |------------------|:--------:|
-| Right Motor      | 30       |
-| Left Motor       | 31       |
+| Motor            | 30       |
+|                  | 31       |
 |                  | 32       |
 |                  | 33       |
 |                  | 34       |
