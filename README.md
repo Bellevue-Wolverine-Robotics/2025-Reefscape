@@ -1,12 +1,4 @@
 # Shuffleboard Configuration - ADVKIT Branch
-
-<p align="center">
-  <img src="https://img.shields.io/badge/Branch-ADVKIT-blueviolet?style=for-the-badge" alt="ADVKIT Branch Badge">
-  <img src="https://img.shields.io/badge/Shuffleboard-Configuration-brightgreen?style=for-the-badge" alt="Shuffleboard Config Badge">
-</p>
-
-This repository contains a pre-configured Shuffleboard layout designed to streamline development and testing.
-
 ## Important Instructions
 
 **Before you proceed, ensure you are working on the `ADVKIT` branch.** This configuration is specifically tailored for development and testing purposes.
