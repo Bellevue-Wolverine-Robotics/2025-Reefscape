@@ -1,86 +1,40 @@
-# 2025-Reefscape
-2025 Season - Reefscape
+# Shuffleboard Configuration - ADVKIT Branch
 
-# RoboRIO Hardware I/O Configuration
-## Digital I/O
-| Port  | Device                 |
-|:-----:|------------------------|
-| 0     | Coral Limit Switch     |
-| 1     | Bore Encoder Channel A |
-| 2     | Bore Encoder Channel B |
-| 3     | Elevator Limit Switch  |
-| 4     |                        |
-| 5     |                        |
-| 6     |                        |
-| 7     |                        |
-| 8     |                        |
-| 9     |                        |
+<p align="center">
+  <img src="https://img.shields.io/badge/Branch-ADVKIT-blueviolet?style=for-the-badge" alt="ADVKIT Branch Badge">
+  <img src="https://img.shields.io/badge/Shuffleboard-Configuration-brightgreen?style=for-the-badge" alt="Shuffleboard Config Badge">
+</p>
 
-## PWM
-| Port  | Device                 |
-|:-----:|------------------------|
-| 0     |                        |
-| 1     |                        |
-| 2     |                        |
-| 3     |                        |
-| 4     |                        |
-| 5     |                        |
-| 6     |                        |
-| 7     |                        |
-| 8     | LED Lights Left        |
-| 9     | LED Lights Right       |
+This repository contains a pre-configured Shuffleboard layout designed to streamline development and testing.
 
-## Relay
-| Port  | Device                 |
-|:-----:|------------------------|
-| 0     |                        |
-| 1     |                        |
-| 2     |                        |
-| 3     |                        |
+## Important Instructions
 
+**Before you proceed, ensure you are working on the `ADVKIT` branch.** This configuration is specifically tailored for development and testing purposes.
 
-## Analog In
-| Port  | Device                 |
-|:-----:|------------------------|
-| 0     |                        |
-| 1     |                        |
-| 2     |                        |
-| 3     |                        |
+### Using the Included Configuration (.json)
 
+For development and testing on your **development robot**, you can utilize the provided `.json` file to quickly set up your Shuffleboard layout.
 
-# CAN ID Assignments
-## Drivebase CAN Devices (IDs 1-12)
-| Module           | Drive Motor ID | Angle Motor ID | Encoder ID |
-|------------------|:--------------:|:--------------:|:----------:|
-| Front Left (FL)  | 1              | 2              | 3          |
-| Front Right (FR) | 4              | 5              | 6          |
-| Back Left (BL)   | 7              | 8              | 9          |
-| Back Right (BR)  | 10             | 11             | 12         |
+**Steps:**
 
-## Coral CAN Devices (IDs 20-29)
-| Device           | CAN ID   |
-|------------------|:--------:|
-| Intake & Outake  | 20       |
-|                  | 21       |
-|                  | 22       |
-|                  | 23       |
-|                  | 24       |
-|                  | 25       |
-|                  | 26       |
-|                  | 27       |
-|                  | 28       |
-|                  | 29       |
+1.  **Locate the `.json` file:** Find the `shuffleboard_layout.json` (or similar) file within this repository.
+2.  **Open Shuffleboard:** Launch your Shuffleboard application.
+3.  **Import the layout:**
+    * Go to `File` > `Open Layout...` (or similar, depending on your Shuffleboard version).
+    * Select the `.json` file from this repository.
+4.  **Verify the layout:** Ensure all your desired widgets and tabs are correctly loaded.
 
-## Elevator CAN Devices (IDs 30-39)
-| Device           | CAN ID   |
-|------------------|:--------:|
-| Motor            | 30       |
-|                  | 31       |
-|                  | 32       |
-|                  | 33       |
-|                  | 34       |
-|                  | 35       |
-|                  | 36       |
-|                  | 37       |
-|                  | 38       |
-|                  | 39       |
+### Competition Robot Configuration
+
+**DO NOT USE THE INCLUDED `.json` FILE ON YOUR COMPETITION ROBOT.**
+
+For your competition robot, it is crucial to allow Shuffleboard to automatically populate its layout during runtime. This ensures that all necessary data is captured and displayed accurately.
+
+**Steps:**
+
+1.  **Start with a clean slate:** Do not import any pre-configured layouts ONLY USE THE JSON WITH THE TESTING ROBOT!!!
+2.  **Run your robot code:** Deploy and run your robot code on the competition robot.
+3.  **Open Shuffleboard:** Launch Shuffleboard.
+4.  **Observe automatic population:** Shuffleboard will automatically detect and display the data sent from your robot code.
+
+**Note:** Always refer to the latest Shuffleboard documentation for specific instructions and features.
