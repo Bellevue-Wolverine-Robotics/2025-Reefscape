@@ -6,5 +6,5 @@ public class CoralConstants {
 
     public static double EJECT_SPEED = 0.25d;
     public static double UNJAM_SPEED = -0.25d;
-    public static double IDLE_SPEED = 0.05d;
+    public static double IDLE_SPEED = 0.15d;
 }
