@@ -1,5 +1,13 @@
 # 2025-Reefscape
 2025 Season - Reefscape
+Andrew's work on advantage kit
+
+# Terminal Gradle Commands
+`./gradlew javadoc` builds the javadoc in ./build/docs/javadoc/index.html
+
+`./gradlew build` builds the jar file in ./build/libs
+
+`./gradlew deply` builds the jar file and deploys to robot
 
 # RoboRIO Hardware I/O Configuration
 ## Digital I/O
