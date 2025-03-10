@@ -41,7 +41,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         return Commands.run(
             () -> {
                 if (overrided) {
-                    motor.set(0);
+                    motor.stopMotor();
                 } else {
                     switch (OperatorConstants.CONTROL_MODE) {
                         case FULL_OPERATOR:
@@ -65,21 +65,21 @@ public class ElevatorSubsystem extends SubsystemBase {
         return Commands.runOnce(() -> {
             overrided = false;
             scoringPosition = position;
-        });
+        }, this);
     }
 
     public Command moveUp() {
         return Commands.run(() -> {
             overrided = true;
             motor.set(ElevatorConstants.UP_SPEED);
-        });
+        }, this);
     }
 
     public Command moveDown() {
         return Commands.run(() -> {
             overrided = true;
             motor.set(-ElevatorConstants.DOWN_SPEED);
-        });
+        }, this);
     }
 
     private void goToPosition(double position) {
