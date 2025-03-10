@@ -889,6 +889,7 @@ public class SwerveSubsystem extends SubsystemBase {
   public SwerveInputStream driveDirectAngle(
     XboxControllerWrapper xboxController
   ) {
+    /*
     return SwerveInputStream.of(
       this.getSwerveDrive(),
       () -> -xboxController.getLeftY(),
@@ -901,5 +902,19 @@ public class SwerveSubsystem extends SubsystemBase {
       .headingWhile(true)
       .allianceRelativeControl(true)
       .deadband(OperatorConstants.kDeadzone);
+    */
+
+      
+      return SwerveInputStream.of(
+      this.getSwerveDrive(),
+      () -> -xboxController.getLeftY(),
+      () -> -xboxController.getLeftX()
+    )
+    .withControllerRotationAxis(
+      () -> -xboxController.getRightX()
+    )
+    .allianceRelativeControl(true)
+    .deadband(OperatorConstants.kDeadzone);
+    
   }
 }

@@ -2,6 +2,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
@@ -9,6 +10,8 @@ import edu.wpi.first.math.geometry.Pose2d;
 
 import java.io.File;
 import java.util.function.Supplier;
+
+import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import frc.robot.commands.AimTagCommand;
 import frc.robot.commands.ChaseTagCommand;
@@ -20,7 +23,6 @@ import frc.robot.constants.ElevatorConstants;
 import frc.robot.constants.OperatorConstants;
 import frc.robot.subsystems.CoralSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
-import frc.robot.subsystems.LEDModeSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
 
@@ -29,6 +31,7 @@ import frc.robot.subsystems.vision.VisionSubsystem;
  * button mappings are declared.
  */
 public class RobotContainer {
+  final PathPlannerAuto autoPath;
 
   final XboxControllerWrapper driverXbox = new XboxControllerWrapper(
     0,
@@ -43,12 +46,12 @@ public class RobotContainer {
     visionSubsystem
   );
 
-  private final CoralSubsystem coralSubsystem = new CoralSubsystem();
-  private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
-  private final LEDModeSubsystem ledSubsystem = new LEDModeSubsystem();
-
   private final CommandXboxController driverController = new CommandXboxController(OperatorConstants.DRIVER_CONTROLLER_PORT);
-  private final CommandXboxController operatorController = new CommandXboxController(OperatorConstants.OPERATOR_CONTROLLER_PORT);
+  //private final CommandXboxController operatorController = new CommandXboxController(OperatorConstants.OPERATOR_CONTROLLER_PORT);
+
+  //private final CoralSubsystem coralSubsystem = new CoralSubsystem();
+  //private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem(operatorController);
+  //private final LEDModeSubsystem ledSubsystem = new LEDModeSubsystem();
 
   // private final VisionSubsystem visionSubsystem = new VisionSim(() ->
   //   driveSubsystem.getPose()
@@ -58,14 +61,15 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
+    autoPath = new PathPlannerAuto("Backwards");
     // Configure the trigger bindings
     configureBindings();
 
     DriverStation.silenceJoystickConnectionWarning(true);
 
-    coralSubsystem.register();
-    elevatorSubsystem.register();
-    ledSubsystem.register();
+    //coralSubsystem.register();
+    //elevatorSubsystem.register();
+    //ledSubsystem.register();
   }
 
   private void configureBindings() {
@@ -79,6 +83,7 @@ public class RobotContainer {
       driverXbox.leftBumper()
     );
 
+    /*
     if (OperatorConstants.CONTROL_MODE == OperatorConstants.ControlMode.PARTIAL_OPERATOR) {
       driverController.leftTrigger().whileTrue(elevatorSubsystem.holdScoringPosition());
     }
@@ -87,11 +92,16 @@ public class RobotContainer {
     operatorController.y().onTrue(elevatorSubsystem.setScoringPosition(ElevatorConstants.LEVEL_THREE));
     operatorController.b().onTrue(elevatorSubsystem.setScoringPosition(ElevatorConstants.LEVEL_FOUR));
     operatorController.a().onTrue(elevatorSubsystem.setScoringPosition(ElevatorConstants.INTAKE_LEVEL));
+
     operatorController.leftBumper().onTrue(elevatorSubsystem.setScoringPosition(ElevatorConstants.BOTTOM_LEVEL));
     operatorController.rightBumper().onTrue(elevatorSubsystem.setScoringPosition(ElevatorConstants.LEVEL_ONE));
 
+    operatorController.rightTrigger().whileTrue(coralSubsystem.eject());
+    operatorController.leftTrigger().whileTrue(coralSubsystem.unjam());
+
     new POVButton(operatorController.getHID(), 0).whileTrue(elevatorSubsystem.increaseScoringPosition());
     new POVButton(operatorController.getHID(), 180).whileTrue(elevatorSubsystem.decreaseScoringPosition());
+    */
 
     // driverXbox.rightBumper().whileTrue(
     // driveAngularSpeedCommand
@@ -109,7 +119,7 @@ public class RobotContainer {
     // driverXbox.x().whileTrue(Commands.runOnce(driveSubsystem::lock,
     // driveSubsystem).repeatedly());
     // driverXbox.y().whileTrue(driveSubsystem.driveToDistanceCommand(1.0, 0.2));
-    // driverXbox.start().onTrue((Commands.runOnce(driveSubsystem::zeroGyro)));
+    driverXbox.povUp().onTrue((Commands.runOnce(driveSubsystem::zeroGyro)));
     // driverXbox.back().whileTrue(driveSubsystem.centerModulesCommand());
     // driverXbox.leftBumper().onTrue(Commands.none());
     // driverXbox.rightBumper().onTrue(Commands.none());
@@ -163,7 +173,7 @@ public class RobotContainer {
       slowDriveCommand
     );
 
-    driveSubsystem.setDefaultCommand(driveAngularSpeedCommand);
+    driveSubsystem.setDefaultCommand(driveDirectAngleCommand);
     // TriggerUtil.holdChangeDefault(driverXbox.rightTrigger(), driveSubsystem,
     // driveAngularSpeedCommand,
     // driveDirectAngleCommand);
@@ -231,6 +241,17 @@ public class RobotContainer {
       top.and(right),
       AprilTagConstants.getTopRightTagApproachPoseSupplier()
     );
+  }
+
+  /**
+   * Use this to pass the autonomous command to the main {@link Robot} class.
+   *
+   * @return the command to run in autonomous
+   */
+  public Command getAutonomousCommand()
+  {
+    // An example command will be run in autonomous
+    return autoPath;
   }
 
   /**

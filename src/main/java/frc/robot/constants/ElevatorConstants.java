@@ -22,4 +22,7 @@ public final class ElevatorConstants {
     public static final double BOTTOM_LEVEL = 0.0d;
 
     public static final double INCREMENT_DISTANCE = 1.5d;
+
+    public static final double UP_SPEED = 0.6d;
+    public static final double DOWN_SPEED = 0.4d;
 }

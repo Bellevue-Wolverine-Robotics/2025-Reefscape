@@ -34,7 +34,7 @@ public final class DriveConstants {
   public static final boolean kLeftInverted = false;
   public static final boolean kRightInverted = true;
 
-  public static final int kCurrentLimit = 20;
+  public static final int kCurrentLimit = 110;
   public static final int kVoltageCompensation = 12;
 
   public static final double kMaxSpeedMetersPerSec = 5;
