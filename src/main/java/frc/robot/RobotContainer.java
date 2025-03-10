@@ -90,8 +90,8 @@ public class RobotContainer {
     operatorController.leftBumper().onTrue(elevatorSubsystem.setScoringPosition(ElevatorConstants.BOTTOM_LEVEL));
     operatorController.rightBumper().onTrue(elevatorSubsystem.setScoringPosition(ElevatorConstants.LEVEL_ONE));
 
-    new POVButton(operatorController.getHID(), 0).whileTrue(elevatorSubsystem.increaseScoringPosition());
-    new POVButton(operatorController.getHID(), 180).whileTrue(elevatorSubsystem.decreaseScoringPosition());
+    new POVButton(operatorController.getHID(), 0).whileTrue(elevatorSubsystem.moveUp());
+    new POVButton(operatorController.getHID(), 180).whileTrue(elevatorSubsystem.moveDown());
 
     // driverXbox.rightBumper().whileTrue(
     // driveAngularSpeedCommand

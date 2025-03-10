@@ -24,6 +24,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     private final Encoder encoder = new Encoder(ElevatorConstants.ENCODER_CHANNEL_A, ElevatorConstants.ENCODER_CHANNEL_B, false, EncodingType.k4X);
 
     private double scoringPosition = 0.0d;
+    private boolean overrided = false;
 
     public ElevatorSubsystem() {
         var config = new SparkMaxConfig();
@@ -39,13 +40,17 @@ public class ElevatorSubsystem extends SubsystemBase {
     private Command maintainPosition() {
         return Commands.run(
             () -> {
-                switch (OperatorConstants.CONTROL_MODE) {
-                    case FULL_OPERATOR:
-                        goToPosition(scoringPosition);
-                        break;
-                    case PARTIAL_OPERATOR:
-                        goToPosition(ElevatorConstants.INTAKE_LEVEL);
-                        break;
+                if (overrided) {
+                    motor.set(0);
+                } else {
+                    switch (OperatorConstants.CONTROL_MODE) {
+                        case FULL_OPERATOR:
+                            goToPosition(scoringPosition);
+                            break;
+                        case PARTIAL_OPERATOR:
+                            goToPosition(ElevatorConstants.INTAKE_LEVEL);
+                            break;
+                    }
                 }
             },
             this
@@ -57,15 +62,24 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public Command setScoringPosition(double position) {
-        return Commands.runOnce(() -> scoringPosition = position);
+        return Commands.runOnce(() -> {
+            overrided = false;
+            scoringPosition = position;
+        });
     }
 
-    public Command decreaseScoringPosition() {
-        return Commands.runOnce(() -> scoringPosition -= ElevatorConstants.INCREMENT_DISTANCE);
+    public Command moveUp() {
+        return Commands.run(() -> {
+            overrided = true;
+            motor.set(ElevatorConstants.UP_SPEED);
+        });
     }
 
-    public Command increaseScoringPosition() {
-        return Commands.runOnce(() -> scoringPosition += ElevatorConstants.INCREMENT_DISTANCE);
+    public Command moveDown() {
+        return Commands.run(() -> {
+            overrided = true;
+            motor.set(-ElevatorConstants.DOWN_SPEED);
+        });
     }
 
     private void goToPosition(double position) {
