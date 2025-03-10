@@ -45,10 +45,10 @@ public class ElevatorSubsystem extends SubsystemBase {
                 } else {
                     switch (OperatorConstants.CONTROL_MODE) {
                         case FULL_OPERATOR:
-                            goToPosition(scoringPosition);
+                            movePosition(scoringPosition);
                             break;
                         case PARTIAL_OPERATOR:
-                            goToPosition(ElevatorConstants.INTAKE_LEVEL);
+                            movePosition(ElevatorConstants.INTAKE_LEVEL);
                             break;
                     }
                 }
@@ -58,31 +58,43 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public Command holdScoringPosition() {
-        return Commands.run(() -> goToPosition(scoringPosition), this);
+        return Commands.run(
+            () -> movePosition(scoringPosition),
+            this
+        );
     }
 
     public Command setScoringPosition(double position) {
-        return Commands.runOnce(() -> {
-            overrided = false;
-            scoringPosition = position;
-        }, this);
+        return Commands.runOnce(
+            () -> {
+                overrided = false;
+                scoringPosition = position;
+            },
+            this
+        );
     }
 
     public Command moveUp() {
-        return Commands.run(() -> {
-            overrided = true;
-            motor.set(ElevatorConstants.UP_SPEED);
-        }, this);
+        return Commands.run(
+            () -> {
+                overrided = true;
+                motor.set(ElevatorConstants.UP_SPEED);
+            },
+            this
+        );
     }
 
     public Command moveDown() {
-        return Commands.run(() -> {
-            overrided = true;
-            motor.set(-ElevatorConstants.DOWN_SPEED);
-        }, this);
+        return Commands.run
+            (() -> {
+                overrided = true;
+                motor.set(-ElevatorConstants.DOWN_SPEED);
+            },
+            this
+        );
     }
 
-    private void goToPosition(double position) {
+    private void movePosition(double position) {
         var speed = pid.calculate(encoder.getDistance(), position);
 
         if (limitSwitch.get()) {
