@@ -99,14 +99,24 @@ public class VisionConstants {
   // Moving average window size for smoothing pose data
   public static final int MOVING_AVERAGE_WINDOW = 60;
 
+  // // Base error values (tuned empirically)
+  // public static final double BASE_X_STD_DEV = 0.7; // meters
+  // public static final double BASE_Y_STD_DEV = 0.7; // meters
+  // public static final double BASE_THETA_STD_DEV = Math.toRadians(10); // radians
+
+  // // Scale coefficients that increase uncertainty with distance.
+  // public static final double X_SCALE = 0.4;
+  // public static final double Y_SCALE = 0.4;
+  // public static final double THETA_SCALE = Math.toRadians(30);
+
   // Base error values (tuned empirically)
-  public static final double BASE_X_STD_DEV = 0.7; // meters
-  public static final double BASE_Y_STD_DEV = 0.7; // meters
+  public static final double BASE_X_STD_DEV = 0.2; // meters
+  public static final double BASE_Y_STD_DEV = 0.2; // meters
   public static final double BASE_THETA_STD_DEV = Math.toRadians(10); // radians
 
   // Scale coefficients that increase uncertainty with distance.
-  public static final double X_SCALE = 0.4;
-  public static final double Y_SCALE = 0.4;
+  public static final double X_SCALE = 0.2;
+  public static final double Y_SCALE = 0.2;
   public static final double THETA_SCALE = Math.toRadians(30);
 
   /**

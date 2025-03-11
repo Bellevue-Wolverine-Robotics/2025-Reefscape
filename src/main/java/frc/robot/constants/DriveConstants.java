@@ -37,7 +37,7 @@ public final class DriveConstants {
   public static final int kCurrentLimit = 20;
   public static final int kVoltageCompensation = 12;
 
-  public static final double kMaxSpeedMetersPerSec = 5;
+  public static final double kMaxSpeedMetersPerSec = 4;
 
   public static final DCMotor gearbox = DCMotor.getCIM(2);
 
@@ -52,7 +52,6 @@ public final class DriveConstants {
    * A - acceleration
    * G - gravity
    */
-  public static final double realKp = 0.0;
   public static final double realKd = 0.0;
   public static final double realKs = 0.0;
   public static final double realKv = 0.1;

@@ -68,7 +68,13 @@ public class Robot extends TimedRobot {
    * {@link RobotContainer} class.
    */
   @Override
-  public void autonomousInit() {}
+  public void autonomousInit() {
+    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+
+    if (m_autonomousCommand != null) {
+      m_autonomousCommand.schedule();
+    }
+  }
 
   /** This function is called periodically during autonomous. */
   @Override
@@ -108,7 +114,7 @@ public class Robot extends TimedRobot {
     // DriverStationSim.setAllianceStationId(DriverStation.AllianceStationID.Red1);
 
     // Enable the driver station
-    DriverStationSim.setEnabled(true);
+    // DriverStationSim.setEnabled(true);
     DriverStationSim.notifyNewData();
   }
 
