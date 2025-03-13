@@ -105,6 +105,8 @@ public class SwerveSubsystem extends SubsystemBase {
         new Pose2d(
           new Translation2d(Meter.of(1), Meter.of(4)),
           Rotation2d.fromDegrees(0)
+          // new Translation2d(Meter.of(7.798), Meter.of(7.539)),
+          // Rotation2d.fromDegrees(45)
         )
       );
     } catch (Exception e) {
@@ -475,10 +477,10 @@ public class SwerveSubsystem extends SubsystemBase {
   public Command driveAngularSpeedCommand(
     XboxControllerWrapper xboxController
   ) {
-    return this.driveWithSetpointGeneratorFieldRelative(
-        this.driveAngularSpeed(xboxController)
-      );
-    // return this.driveFieldOriented(this.driveAngularSpeed(xboxController));
+    // return this.driveWithSetpointGeneratorFieldRelative(
+    //     this.driveAngularSpeed(xboxController)
+    //   );
+    return this.driveFieldOriented(this.driveAngularSpeed(xboxController));
   }
 
   /**
@@ -876,7 +878,6 @@ public class SwerveSubsystem extends SubsystemBase {
     XboxControllerWrapper xboxController,
     double speedFactor
   ) {
-    System.out.println(-xboxController.getLeftY() * speedFactor);
     return SwerveInputStream.of(
       this.getSwerveDrive(),
       () -> -xboxController.getLeftY() * speedFactor,
