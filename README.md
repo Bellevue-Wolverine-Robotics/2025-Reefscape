@@ -1,6 +1,4 @@
 # 2025-Reefscape
-2025 Season - Reefscape
-Andrew's work on advantage kit
 
 # Terminal Gradle Commands
 `./gradlew javadoc` builds the javadoc in ./build/docs/javadoc/index.html
@@ -82,8 +80,8 @@ Andrew's work on advantage kit
 ## Elevator CAN Devices (IDs 30-39)
 | Device           | CAN ID   |
 |------------------|:--------:|
-| Motor            | 30       |
-|                  | 31       |
+|                  | 30       |
+| Up Motor         | 31       |
 |                  | 32       |
 |                  | 33       |
 |                  | 34       |
