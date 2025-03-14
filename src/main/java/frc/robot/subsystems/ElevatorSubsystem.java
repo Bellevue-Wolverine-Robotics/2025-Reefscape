@@ -19,7 +19,6 @@ import frc.robot.constants.OperatorConstants;
 
 public class ElevatorSubsystem extends SubsystemBase {
     private final SparkMax motor = new SparkMax(ElevatorConstants.MOTOR_ID, MotorType.kBrushless);
-    private final DigitalInput limitSwitch = new DigitalInput(ElevatorConstants.LIMIT_SWITCH_PORT);
     private final PIDController pid = new PIDController(ElevatorConstants.KP, ElevatorConstants.KI, ElevatorConstants.KD);
     private final Encoder encoder = new Encoder(ElevatorConstants.ENCODER_CHANNEL_A, ElevatorConstants.ENCODER_CHANNEL_B, false, EncodingType.k4X);
 
@@ -48,7 +47,7 @@ public class ElevatorSubsystem extends SubsystemBase {
                             movePosition(scoringPosition);
                             break;
                         case PARTIAL_OPERATOR:
-                            movePosition(ElevatorConstants.INTAKE_LEVEL);
+                            movePosition(ElevatorConstants.LEVEL_ZERO);
                             break;
                     }
                 }
@@ -78,6 +77,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         return Commands.run(
             () -> {
                 overrided = true;
+                // System.out.println(encoder.getDistance());
                 motor.set(ElevatorConstants.UP_SPEED);
             },
             this
@@ -85,23 +85,21 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public Command moveDown() {
-        return Commands.run
-            (() -> {
+        return Commands.run(
+            () -> {
                 overrided = true;
-                motor.set(-ElevatorConstants.DOWN_SPEED);
+                // System.out.println(encoder.getDistance());
+                motor.set(ElevatorConstants.DOWN_SPEED);
             },
             this
         );
     }
 
     private void movePosition(double position) {
-        var speed = pid.calculate(encoder.getDistance(), position);
+        var distance = encoder.getDistance();
+        var speed = pid.calculate(distance, position);
 
-        if (limitSwitch.get()) {
-            encoder.reset();
-        }
-
-        if (limitSwitch.get() && speed < 0) {
+        if (distance <= ElevatorConstants.LEVEL_ZERO && speed < 0 || distance >= ElevatorConstants.LEVEL_FOUR && speed > 0) {
             motor.stopMotor();
         } else {
             motor.set(speed);
