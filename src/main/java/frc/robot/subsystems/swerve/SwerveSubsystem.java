@@ -12,6 +12,7 @@ import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.swerve.SwerveSetpoint;
 import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -34,7 +35,6 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.constants.*;
 import frc.robot.subsystems.vision.EstimatedPoseStruct;
 import frc.robot.subsystems.vision.VisionSubsystem;
-import frc.robot.utils.XboxControllerWrapper;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -473,7 +473,7 @@ public class SwerveSubsystem extends SubsystemBase {
   // =========================================
 
   public Command driveAngularSpeedCommand(
-    XboxControllerWrapper xboxController
+    CommandXboxController xboxController
   ) {
     return this.driveWithSetpointGeneratorFieldRelative(
         this.driveAngularSpeed(xboxController)
@@ -489,7 +489,7 @@ public class SwerveSubsystem extends SubsystemBase {
    * @return Command for reduced speed driving
    */
   public Command driveAngularSpeedCommand(
-    XboxControllerWrapper xboxController,
+    CommandXboxController xboxController,
     double speedFactor
   ) {
     return this.driveWithSetpointGeneratorFieldRelative(
@@ -497,7 +497,7 @@ public class SwerveSubsystem extends SubsystemBase {
       );
   }
 
-  public Command driveDirectAngleCommand(XboxControllerWrapper xboxController) {
+  public Command driveDirectAngleCommand(CommandXboxController xboxController) {
     return this.driveWithSetpointGeneratorFieldRelative(
         this.driveDirectAngle(xboxController)
       );
@@ -856,7 +856,7 @@ public class SwerveSubsystem extends SubsystemBase {
   // =========================================
 
   public SwerveInputStream driveAngularSpeed(
-    XboxControllerWrapper xboxController
+    CommandXboxController xboxController
   ) {
     return SwerveInputStream.of(
       this.getSwerveDrive(),
@@ -873,7 +873,7 @@ public class SwerveSubsystem extends SubsystemBase {
    * @return SwerveInputStream with reduced speeds
    */
   public SwerveInputStream driveAngularSpeedReduced(
-    XboxControllerWrapper xboxController,
+    CommandXboxController xboxController,
     double speedFactor
   ) {
     System.out.println(-xboxController.getLeftY() * speedFactor);
@@ -887,7 +887,7 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   public SwerveInputStream driveDirectAngle(
-    XboxControllerWrapper xboxController
+    CommandXboxController xboxController
   ) {
     return SwerveInputStream.of(
       this.getSwerveDrive(),
