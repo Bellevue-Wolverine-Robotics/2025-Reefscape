@@ -240,13 +240,10 @@ public class RobotContainer {
     operatorController.x().onTrue(elevatorSubsystem.setScoringPosition(ElevatorConstants.LEVEL_TWO));
     operatorController.y().onTrue(elevatorSubsystem.setScoringPosition(ElevatorConstants.LEVEL_THREE));
     operatorController.b().onTrue(elevatorSubsystem.setScoringPosition(ElevatorConstants.LEVEL_FOUR));
-    operatorController.a().onTrue(elevatorSubsystem.setScoringPosition(ElevatorConstants.LEVEL_ONE));
-    operatorController.leftTrigger().onTrue(elevatorSubsystem.setScoringPosition(ElevatorConstants.LEVEL_ZERO));
-    operatorController.rightTrigger().whileTrue(coralSubsystem.eject());
+    operatorController.a().onTrue(elevatorSubsystem.setScoringPosition(ElevatorConstants.LEVEL_ZERO));
+    operatorController.leftBumper().onTrue(elevatorSubsystem.setScoringPosition(ElevatorConstants.LEVEL_ONE));
+    operatorController.axisMagnitudeGreaterThan(1, OperatorConstants.kDeadzone).whileTrue(elevatorSubsystem.moveManual(() -> operatorController.getLeftY()));
     operatorController.leftBumper().whileTrue(coralSubsystem.unjam());
-
-    new POVButton(operatorController.getHID(), 0).whileTrue(elevatorSubsystem.moveUp());
-    new POVButton(operatorController.getHID(), 180).whileTrue(elevatorSubsystem.moveDown());
-
+    operatorController.rightTrigger().whileTrue(coralSubsystem.eject());
   }
 }

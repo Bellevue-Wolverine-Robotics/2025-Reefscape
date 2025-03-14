@@ -7,7 +7,7 @@ public final class ElevatorConstants {
     public static final int ENCODER_CHANNEL_A = 1;
     public static final int ENCODER_CHANNEL_B = 2;
 
-    public static final double KP = .07d;
+    public static final double KP = .1d;
     public static final double KI = 0.0d;
     public static final double KD = 0.0d;
     public static final double ERROR_TOLERANCE = 0.5d;
@@ -18,6 +18,6 @@ public final class ElevatorConstants {
     public static final double LEVEL_THREE = 34.0d;
     public static final double LEVEL_FOUR = 55.0d;
 
-    public static final double UP_SPEED = 0.8d;
-    public static final double DOWN_SPEED = -0.4d;
+    public static final double UP_AXIS_COEFFICIENT = 0.8d / (1 - OperatorConstants.kDeadzone);
+    public static final double DOWN_AXIS_COEFFICIENT = 0.4d / (1 - OperatorConstants.kDeadzone);
 }

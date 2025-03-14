@@ -39,6 +39,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
@@ -174,14 +175,15 @@ public class SwerveSubsystem extends SubsystemBase {
     //   } else {}
     // }
 
-    ArrayList<EstimatedPoseStruct> estimatedPoses =
-      visionSubsystem.estimateRobotPoseFromAllCameras();
+    Optional<EstimatedPoseStruct> estimatedPoses =
+      visionSubsystem.estimateRobotPoseVision();
 
-    for (EstimatedPoseStruct estimatedPose : estimatedPoses) {
+
+    if (estimatedPoses.isPresent()) {
       swerveDrive.addVisionMeasurement(
-        estimatedPose.robotPose,
-        estimatedPose.estimationTimestamp,
-        VisionConstants.getEstimationStdDevs(estimatedPose.distance)
+        estimatedPoses.get().robotPose,
+        estimatedPoses.get().estimationTimestamp,
+        VisionConstants.getEstimationStdDevs(estimatedPoses.get().distance)
       );
     }
     // if (estimatedPoses) {
@@ -272,9 +274,9 @@ public class SwerveSubsystem extends SubsystemBase {
       System.out.println(pose);
       PathConstraints constraints = new PathConstraints(
         swerveDrive.getMaximumChassisVelocity(), // Use full speed
-        5.5, // Maximum acceleration
+        2, // Maximum acceleration
         swerveDrive.getMaximumChassisAngularVelocity(), // Full angular velocity
-        Units.degreesToRadians(720) // Maximum angular acceleration
+        Units.degreesToRadians(360) // Maximum angular acceleration
       );
       Command pathfindCommand = AutoBuilder.pathfindToPose(
         pose,
@@ -480,7 +482,6 @@ public class SwerveSubsystem extends SubsystemBase {
       );
     // return this.driveFieldOriented(this.driveAngularSpeed(xboxController));
   }
-
   /**
    * Creates a command to drive the robot with angular speed control and a speed reduction factor
    *
@@ -495,6 +496,7 @@ public class SwerveSubsystem extends SubsystemBase {
     return this.driveWithSetpointGeneratorFieldRelative(
         this.driveAngularSpeedReduced(xboxController, speedFactor)
       );
+      // return this.driveFieldOriented(this.driveAngularSpeedReduced(xboxController, speedFactor));
   }
 
   public Command driveDirectAngleCommand(CommandXboxController xboxController) {

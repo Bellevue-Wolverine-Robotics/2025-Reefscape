@@ -10,6 +10,9 @@ import edu.wpi.first.math.controller.PIDController;
 
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.ResetMode;
+
+import java.util.function.DoubleSupplier;
+
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
@@ -73,23 +76,17 @@ public class ElevatorSubsystem extends SubsystemBase {
         );
     }
 
-    public Command moveUp() {
+    public Command moveManual(DoubleSupplier controllerAxisSupplier) {
         return Commands.run(
             () -> {
                 overrided = true;
-                // System.out.println(encoder.getDistance());
-                motor.set(ElevatorConstants.UP_SPEED);
-            },
-            this
-        );
-    }
-
-    public Command moveDown() {
-        return Commands.run(
-            () -> {
-                overrided = true;
-                // System.out.println(encoder.getDistance());
-                motor.set(ElevatorConstants.DOWN_SPEED);
+                var axis = controllerAxisSupplier.getAsDouble();
+   
+                if (axis > 0) {
+                    motor.set((axis - OperatorConstants.kDeadzone) * ElevatorConstants.UP_AXIS_COEFFICIENT);
+                } else {
+                    motor.set((axis + OperatorConstants.kDeadzone) * ElevatorConstants.DOWN_AXIS_COEFFICIENT);
+                }
             },
             this
         );
