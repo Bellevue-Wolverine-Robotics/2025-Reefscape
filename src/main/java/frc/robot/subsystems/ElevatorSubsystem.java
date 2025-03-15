@@ -80,13 +80,13 @@ public class ElevatorSubsystem extends SubsystemBase {
             () -> {
                 overrided = true;
                 double axis = -controllerAxisSupplier.getAsDouble();
+                System.out.println(encoder.getDistance());
 
                 if (axis > 0) {
-                    motor.set(axis * ElevatorConstants.UP_AXIS_COEFFICIENT);
+                    motor.set(axis);
                 } else {
-                    motor.set(axis * ElevatorConstants.DOWN_AXIS_COEFFICIENT);
+                    motor.set(axis);
                 }
-                System.out.println(encoder.getDistance());
             },
             this
         );

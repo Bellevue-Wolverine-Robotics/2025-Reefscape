@@ -248,6 +248,6 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return driveSubsystem.driveToDistanceCommand(-1, 1);
+    return driveSubsystem.driveToDistanceCommand(10, -1);
   }
 }
