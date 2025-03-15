@@ -276,9 +276,9 @@ public class SwerveSubsystem extends SubsystemBase {
       System.out.println(pose);
       PathConstraints constraints = new PathConstraints(
         swerveDrive.getMaximumChassisVelocity(), // Use full speed
-        2, // Maximum acceleration
+        DriveConstants.PATH_FINDING_MAX_LINEAR_ACC, // Maximum acceleration
         swerveDrive.getMaximumChassisAngularVelocity(), // Full angular velocity
-        Units.degreesToRadians(360) // Maximum angular acceleration
+        Units.degreesToRadians(DriveConstants.PATH_FINDING_MAX_ANGULAR_ACC) // Maximum angular acceleration
       );
       Command pathfindCommand = AutoBuilder.pathfindToPose(
         pose,

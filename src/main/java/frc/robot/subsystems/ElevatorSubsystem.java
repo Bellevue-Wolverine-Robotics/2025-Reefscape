@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -29,7 +28,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     private boolean overrided = false;
 
     public ElevatorSubsystem() {
-        var config = new SparkMaxConfig();
+        SparkMaxConfig config = new SparkMaxConfig();
         config.idleMode(SparkMaxConfig.IdleMode.kBrake);
         motor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
@@ -80,12 +79,12 @@ public class ElevatorSubsystem extends SubsystemBase {
         return Commands.run(
             () -> {
                 overrided = true;
-                var axis = controllerAxisSupplier.getAsDouble();
-   
+                double axis = -controllerAxisSupplier.getAsDouble();
+
                 if (axis > 0) {
-                    motor.set((axis - OperatorConstants.kDeadzone) * ElevatorConstants.UP_AXIS_COEFFICIENT);
+                    motor.set(axis * ElevatorConstants.UP_AXIS_COEFFICIENT);
                 } else {
-                    motor.set((axis + OperatorConstants.kDeadzone) * ElevatorConstants.DOWN_AXIS_COEFFICIENT);
+                    motor.set(axis * ElevatorConstants.DOWN_AXIS_COEFFICIENT);
                 }
             },
             this
@@ -93,8 +92,8 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     private void movePosition(double position) {
-        var distance = encoder.getDistance();
-        var speed = pid.calculate(distance, position);
+        double distance = encoder.getDistance();
+        double speed = pid.calculate(distance, position);
 
         if (distance <= ElevatorConstants.LEVEL_ZERO && speed < 0 || distance >= ElevatorConstants.LEVEL_FOUR && speed > 0) {
             motor.stopMotor();

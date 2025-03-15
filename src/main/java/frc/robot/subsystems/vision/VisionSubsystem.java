@@ -117,7 +117,7 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
     PhotonPipelineResult latestResult = results.get(results.size() - 1);
-    System.out.println(latestResult.getMultiTagResult().isEmpty());
+    // System.out.println(latestResult.getMultiTagResult().isEmpty());
     if (!latestResult.getMultiTagResult().isPresent()) {
       return Optional.empty();
     }

@@ -239,6 +239,7 @@ public class RobotContainer {
 
   public Command getAutonomousCommand() {
     return new PathPlannerAuto("Standard");
+  }
 
   private void setDefaultOperatorBinds() {
     if (OperatorConstants.CONTROL_MODE == OperatorConstants.ControlMode.PARTIAL_OPERATOR) {
@@ -251,8 +252,7 @@ public class RobotContainer {
     operatorController.a().onTrue(elevatorSubsystem.setScoringPosition(ElevatorConstants.LEVEL_ZERO));
     operatorController.leftBumper().onTrue(elevatorSubsystem.setScoringPosition(ElevatorConstants.LEVEL_ONE));
     operatorController.axisMagnitudeGreaterThan(1, OperatorConstants.kDeadzone).whileTrue(elevatorSubsystem.moveManual(() -> operatorController.getLeftY()));
-    operatorController.leftBumper().whileTrue(coralSubsystem.unjam());
+    operatorController.leftTrigger().whileTrue(coralSubsystem.unjam());
     operatorController.rightTrigger().whileTrue(coralSubsystem.eject());
-
   }
 }
