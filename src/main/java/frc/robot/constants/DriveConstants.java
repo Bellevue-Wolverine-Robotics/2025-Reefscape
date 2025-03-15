@@ -88,5 +88,9 @@ public final class DriveConstants {
   public static final double PATH_PLANNER_LINEAR_KP = 6.0;
   public static final double PATH_PLANNER_ANGULAR_KP = 8.0;
 
+
+  public static final double PATH_FINDING_MAX_LINEAR_ACC= 1.5;
+  public static final double PATH_FINDING_MAX_ANGULAR_ACC = 180;
+
   public static final double SLOW_COEF = 0.15;
 }

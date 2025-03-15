@@ -47,6 +47,13 @@ public class RobotContainer {
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
 
+  private Command driveForward = new Command() {
+    @Override
+    public void initialize() {
+        
+    }
+  };
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     switch (Constants.currentMode) {

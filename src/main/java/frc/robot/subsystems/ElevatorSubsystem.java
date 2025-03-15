@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -10,6 +9,9 @@ import edu.wpi.first.math.controller.PIDController;
 
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.ResetMode;
+
+import java.util.function.DoubleSupplier;
+
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
@@ -26,7 +28,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     private boolean overrided = false;
 
     public ElevatorSubsystem() {
-        var config = new SparkMaxConfig();
+        SparkMaxConfig config = new SparkMaxConfig();
         config.idleMode(SparkMaxConfig.IdleMode.kBrake);
         motor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
@@ -73,31 +75,26 @@ public class ElevatorSubsystem extends SubsystemBase {
         );
     }
 
-    public Command moveUp() {
+    public Command moveManual(DoubleSupplier controllerAxisSupplier) {
         return Commands.run(
             () -> {
                 overrided = true;
-                // System.out.println(encoder.getDistance());
-                motor.set(ElevatorConstants.UP_SPEED);
-            },
-            this
-        );
-    }
+                double axis = -controllerAxisSupplier.getAsDouble();
 
-    public Command moveDown() {
-        return Commands.run(
-            () -> {
-                overrided = true;
-                // System.out.println(encoder.getDistance());
-                motor.set(ElevatorConstants.DOWN_SPEED);
+                if (axis > 0) {
+                    motor.set(axis * ElevatorConstants.UP_AXIS_COEFFICIENT);
+                } else {
+                    motor.set(axis * ElevatorConstants.DOWN_AXIS_COEFFICIENT);
+                }
+                System.out.println(encoder.getDistance());
             },
             this
         );
     }
 
     private void movePosition(double position) {
-        var distance = encoder.getDistance();
-        var speed = pid.calculate(distance, position);
+        double distance = encoder.getDistance();
+        double speed = pid.calculate(distance, position);
 
         if (distance <= ElevatorConstants.LEVEL_ZERO && speed < 0 || distance >= ElevatorConstants.LEVEL_FOUR && speed > 0) {
             motor.stopMotor();
