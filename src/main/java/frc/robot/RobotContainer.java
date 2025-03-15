@@ -31,11 +31,12 @@ import java.util.function.Supplier;
  */
 public class RobotContainer {
 
-  final XboxControllerWrapper driverXbox = new XboxControllerWrapper(
-    0,
-    false,
-    true
-  );
+
+  // final XboxControllerWrapper driverController = new XboxControllerWrapper(
+  //   0,
+  //   false,
+  //   false
+  // );
 
   private final VisionSubsystem visionSubsystem = new VisionSubsystem();
 
@@ -72,63 +73,19 @@ public class RobotContainer {
   }
 
   private void configureBindings() {
-    setDefaultDriveBehavior();
+    setDefaultDriveBinds();
     setDefaultPathfinding(
-      driverXbox.y(),
-      driverXbox.b(),
-      driverXbox.a(),
-      driverXbox.x(),
-      driverXbox.rightBumper(),
-      driverXbox.leftBumper()
+      driverController.y(),
+      driverController.b(),
+      driverController.a(),
+      driverController.x(),
+      driverController.rightBumper(),
+      driverController.leftBumper()
     );
+    setDefaultOperatorBinds();
 
-    if (
-      OperatorConstants.CONTROL_MODE ==
-      OperatorConstants.ControlMode.PARTIAL_OPERATOR
-    ) {
-      driverController
-        .leftTrigger()
-        .whileTrue(elevatorSubsystem.holdScoringPosition());
-    }
 
-    operatorController
-      .x()
-      .onTrue(
-        elevatorSubsystem.setScoringPosition(ElevatorConstants.LEVEL_TWO)
-      );
-    operatorController
-      .y()
-      .onTrue(
-        elevatorSubsystem.setScoringPosition(ElevatorConstants.LEVEL_THREE)
-      );
-    operatorController
-      .b()
-      .onTrue(
-        elevatorSubsystem.setScoringPosition(ElevatorConstants.LEVEL_FOUR)
-      );
-    operatorController
-      .a()
-      .onTrue(
-        elevatorSubsystem.setScoringPosition(ElevatorConstants.INTAKE_LEVEL)
-      );
-    operatorController
-      .leftBumper()
-      .onTrue(
-        elevatorSubsystem.setScoringPosition(ElevatorConstants.BOTTOM_LEVEL)
-      );
-    operatorController
-      .rightBumper()
-      .onTrue(
-        elevatorSubsystem.setScoringPosition(ElevatorConstants.LEVEL_ONE)
-      );
-
-    new POVButton(operatorController.getHID(), 0).whileTrue(
-      elevatorSubsystem.increaseScoringPosition()
-    );
-    new POVButton(operatorController.getHID(), 180).whileTrue(
-      elevatorSubsystem.decreaseScoringPosition()
-    );
-    // driverXbox.rightBumper().whileTrue(
+    // driverController.rightBumper().whileTrue(
     // driveAngularSpeedCommand
     // .andThen(() -> {
     // System.out.println("Overriding default command with
@@ -141,43 +98,43 @@ public class RobotContainer {
     // }));
 
     // if (DriverStation.isTest()) {
-    // driverXbox.x().whileTrue(Commands.runOnce(driveSubsystem::lock,
+    // driverController.x().whileTrue(Commands.runOnce(driveSubsystem::lock,
     // driveSubsystem).repeatedly());
-    // driverXbox.y().whileTrue(driveSubsystem.driveToDistanceCommand(1.0, 0.2));
-    // driverXbox.start().onTrue((Commands.runOnce(driveSubsystem::zeroGyro)));
-    // driverXbox.back().whileTrue(driveSubsystem.centerModulesCommand());
-    // driverXbox.leftBumper().onTrue(Commands.none());
-    // driverXbox.rightBumper().onTrue(Commands.none());
+    // driverController.y().whileTrue(driveSubsystem.driveToDistanceCommand(1.0, 0.2));
+    // driverController.start().onTrue((Commands.runOnce(driveSubsystem::zeroGyro)));
+    // driverController.back().whileTrue(driveSubsystem.centerModulesCommand());
+    // driverController.leftBumper().onTrue(Commands.none());
+    // driverController.rightBumper().onTrue(Commands.none());
     // } else {
-    // driverXbox.a().onTrue((Commands.runOnce(driveSubsystem::zeroGyro)));
-    // driverXbox.x().onTrue(Commands.runOnce(driveSubsystem::addFakeVisionReading));
-    // driverXbox.b().whileTrue(
+    // driverController.a().onTrue((Commands.runOnce(driveSubsystem::zeroGyro)));
+    // driverController.x().onTrue(Commands.runOnce(driveSubsystem::addFakeVisionReading));
+    // driverController.b().whileTrue(
     // driveSubsystem.driveToPose(
     // new Pose2d(new Translation2d(4, 4), Rotation2d.fromDegrees(0))));
-    // driverXbox.start().whileTrue(Commands.none());
-    // driverXbox.back().whileTrue(Commands.none());
-    // driverXbox.leftBumper().whileTrue(Commands.runOnce(driveSubsystem::lock,
+    // driverController.start().whileTrue(Commands.none());
+    // driverController.back().whileTrue(Commands.none());
+    // driverController.leftBumper().whileTrue(Commands.runOnce(driveSubsystem::lock,
     // driveSubsystem).repeatedly());
-    // driverXbox.rightBumper().onTrue(Commands.none());
+    // driverController.rightBumper().onTrue(Commands.none());
     // }
   }
 
-  private void setDefaultDriveBehavior() {
+  private void setDefaultDriveBinds() {
     Command driveDirectAngleCommand = driveSubsystem.driveDirectAngleCommand(
-      driverXbox
+      driverController
     );
     Command driveAngularSpeedCommand = driveSubsystem.driveAngularSpeedCommand(
-      driverXbox
+      driverController
     );
 
     // Command aimAtTargetCommand = driveSubsystem.aimAtTargetCommand(
-    // driverXbox,
+    // driverController,
     // 18);
 
     Command aimAtTargetCommand = new AimTagCommand(
       visionSubsystem,
       driveSubsystem,
-      driverXbox,
+      driverController,
       18
     );
     Command chaseTagCommand = new ChaseTagCommand(
@@ -187,31 +144,31 @@ public class RobotContainer {
     );
 
     Command slowDriveCommand = driveSubsystem.driveAngularSpeedCommand(
-      driverXbox,
+      driverController,
       DriveConstants.SLOW_COEF
     );
 
     TriggerUtil.holdChangeDefault(
-      driverXbox.rightTrigger(),
+      driverController.rightTrigger(),
       driveSubsystem,
       driveAngularSpeedCommand,
       slowDriveCommand
     );
 
     driveSubsystem.setDefaultCommand(driveAngularSpeedCommand);
-    // TriggerUtil.holdChangeDefault(driverXbox.rightTrigger(), driveSubsystem,
+    // TriggerUtil.holdChangeDefault(driverController.rightTrigger(), driveSubsystem,
     // driveAngularSpeedCommand,
     // driveDirectAngleCommand);
 
     //     TriggerUtil.holdChangeDefault(
-    //       driverXbox.b(),
+    //       driverController.b(),
     //       driveSubsystem,
     //       driveAngularSpeedCommand,
     //       aimAtTargetCommand
     //     );
 
     //     TriggerUtil.holdChangeDefault(
-    //       driverXbox.a(),
+    //       driverController.a(),
     //       driveSubsystem,
     //       driveAngularSpeedCommand,
     //       chaseTagCommand
@@ -282,5 +239,20 @@ public class RobotContainer {
 
   public Command getAutonomousCommand() {
     return new PathPlannerAuto("Standard");
+
+  private void setDefaultOperatorBinds() {
+    if (OperatorConstants.CONTROL_MODE == OperatorConstants.ControlMode.PARTIAL_OPERATOR) {
+      driverController.leftTrigger().whileTrue(elevatorSubsystem.holdScoringPosition());
+    }
+
+    operatorController.x().onTrue(elevatorSubsystem.setScoringPosition(ElevatorConstants.LEVEL_TWO));
+    operatorController.y().onTrue(elevatorSubsystem.setScoringPosition(ElevatorConstants.LEVEL_THREE));
+    operatorController.b().onTrue(elevatorSubsystem.setScoringPosition(ElevatorConstants.LEVEL_FOUR));
+    operatorController.a().onTrue(elevatorSubsystem.setScoringPosition(ElevatorConstants.LEVEL_ZERO));
+    operatorController.leftBumper().onTrue(elevatorSubsystem.setScoringPosition(ElevatorConstants.LEVEL_ONE));
+    operatorController.axisMagnitudeGreaterThan(1, OperatorConstants.kDeadzone).whileTrue(elevatorSubsystem.moveManual(() -> operatorController.getLeftY()));
+    operatorController.leftBumper().whileTrue(coralSubsystem.unjam());
+    operatorController.rightTrigger().whileTrue(coralSubsystem.eject());
+
   }
 }

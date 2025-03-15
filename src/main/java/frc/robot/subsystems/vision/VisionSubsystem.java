@@ -36,11 +36,11 @@ public class VisionSubsystem extends SubsystemBase {
 
   public VisionSubsystem() {
     frontCamera = new PhotonCamera(VisionConstants.FRONT_CAMERA);
-    backCamera = new PhotonCamera(VisionConstants.BACK_CAMERA);
+    // backCamera = new PhotonCamera(VisionConstants.BACK_CAMERA);
 
-    allCameras = new ArrayList<>();
-    allCameras.add(frontCamera);
-    allCameras.add(backCamera);
+    // allCameras = new ArrayList<>();
+    // allCameras.add(frontCamera);
+    // allCameras.add(backCamera);
 
     fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
     photonPoseEstimator = new PhotonPoseEstimator(
@@ -109,11 +109,15 @@ public class VisionSubsystem extends SubsystemBase {
     Transform3d cameraToRobot
   ) {
     List<PhotonPipelineResult> results = camera.getAllUnreadResults();
+
+    
+
     if (results.isEmpty()) {
       return Optional.empty();
     }
 
     PhotonPipelineResult latestResult = results.get(results.size() - 1);
+    System.out.println(latestResult.getMultiTagResult().isEmpty());
     if (!latestResult.getMultiTagResult().isPresent()) {
       return Optional.empty();
     }

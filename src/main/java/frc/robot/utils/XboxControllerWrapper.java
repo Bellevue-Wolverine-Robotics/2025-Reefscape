@@ -7,16 +7,16 @@ import frc.robot.constants.OperatorConstants;
 
 public class XboxControllerWrapper extends CommandGenericHID {
 
-  private final boolean inverted;
+  private final boolean leftInverted;
   private final boolean rightInverted;
 
   public XboxControllerWrapper(
     int port,
-    boolean inverted,
+    boolean leftInverted,
     boolean rightInverted
   ) {
     super(port);
-    this.inverted = inverted;
+    this.leftInverted = leftInverted;
     this.rightInverted = rightInverted;
   }
 
@@ -37,7 +37,7 @@ public class XboxControllerWrapper extends CommandGenericHID {
     return getAxisWithInversion(
       OperatorConstants.kControllerLeftX,
       0, // Standard mapping for real hardware
-      inverted
+      leftInverted
     );
   }
 
@@ -45,7 +45,7 @@ public class XboxControllerWrapper extends CommandGenericHID {
     return getAxisWithInversion(
       OperatorConstants.kControllerLeftY,
       1, // Standard mapping for real hardware
-      inverted
+      leftInverted
     );
   }
 
@@ -61,7 +61,7 @@ public class XboxControllerWrapper extends CommandGenericHID {
     return getAxisWithInversion(
       OperatorConstants.kControllerRightY,
       5, // Standard mapping for real hardware
-      inverted
+      leftInverted
     );
   }
 

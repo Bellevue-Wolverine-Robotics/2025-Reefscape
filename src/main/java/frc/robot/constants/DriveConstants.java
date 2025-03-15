@@ -87,5 +87,5 @@ public final class DriveConstants {
   public static final double PATH_PLANNER_LINEAR_KP = 6.0;
   public static final double PATH_PLANNER_ANGULAR_KP = 8.0;
 
-  public static final double SLOW_COEF = 0.25;
+  public static final double SLOW_COEF = 0.15;
 }

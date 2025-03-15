@@ -10,6 +10,9 @@ import edu.wpi.first.math.controller.PIDController;
 
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.ResetMode;
+
+import java.util.function.DoubleSupplier;
+
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
@@ -19,11 +22,11 @@ import frc.robot.constants.OperatorConstants;
 
 public class ElevatorSubsystem extends SubsystemBase {
     private final SparkMax motor = new SparkMax(ElevatorConstants.MOTOR_ID, MotorType.kBrushless);
-    private final DigitalInput limitSwitch = new DigitalInput(ElevatorConstants.LIMIT_SWITCH_PORT);
     private final PIDController pid = new PIDController(ElevatorConstants.KP, ElevatorConstants.KI, ElevatorConstants.KD);
     private final Encoder encoder = new Encoder(ElevatorConstants.ENCODER_CHANNEL_A, ElevatorConstants.ENCODER_CHANNEL_B, false, EncodingType.k4X);
 
     private double scoringPosition = 0.0d;
+    private boolean overrided = false;
 
     public ElevatorSubsystem() {
         var config = new SparkMaxConfig();
@@ -39,13 +42,17 @@ public class ElevatorSubsystem extends SubsystemBase {
     private Command maintainPosition() {
         return Commands.run(
             () -> {
-                switch (OperatorConstants.CONTROL_MODE) {
-                    case FULL_OPERATOR:
-                        goToPosition(scoringPosition);
-                        break;
-                    case PARTIAL_OPERATOR:
-                        goToPosition(ElevatorConstants.INTAKE_LEVEL);
-                        break;
+                if (overrided) {
+                    motor.stopMotor();
+                } else {
+                    switch (OperatorConstants.CONTROL_MODE) {
+                        case FULL_OPERATOR:
+                            movePosition(scoringPosition);
+                            break;
+                        case PARTIAL_OPERATOR:
+                            movePosition(ElevatorConstants.LEVEL_ZERO);
+                            break;
+                    }
                 }
             },
             this
@@ -53,29 +60,43 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public Command holdScoringPosition() {
-        return Commands.run(() -> goToPosition(scoringPosition), this);
+        return Commands.run(
+            () -> movePosition(scoringPosition),
+            this
+        );
     }
 
     public Command setScoringPosition(double position) {
-        return Commands.runOnce(() -> scoringPosition = position);
+        return Commands.runOnce(
+            () -> {
+                overrided = false;
+                scoringPosition = position;
+            },
+            this
+        );
     }
 
-    public Command decreaseScoringPosition() {
-        return Commands.runOnce(() -> scoringPosition -= ElevatorConstants.INCREMENT_DISTANCE);
+    public Command moveManual(DoubleSupplier controllerAxisSupplier) {
+        return Commands.run(
+            () -> {
+                overrided = true;
+                var axis = controllerAxisSupplier.getAsDouble();
+   
+                if (axis > 0) {
+                    motor.set((axis - OperatorConstants.kDeadzone) * ElevatorConstants.UP_AXIS_COEFFICIENT);
+                } else {
+                    motor.set((axis + OperatorConstants.kDeadzone) * ElevatorConstants.DOWN_AXIS_COEFFICIENT);
+                }
+            },
+            this
+        );
     }
 
-    public Command increaseScoringPosition() {
-        return Commands.runOnce(() -> scoringPosition += ElevatorConstants.INCREMENT_DISTANCE);
-    }
+    private void movePosition(double position) {
+        var distance = encoder.getDistance();
+        var speed = pid.calculate(distance, position);
 
-    private void goToPosition(double position) {
-        var speed = pid.calculate(encoder.getDistance(), position);
-
-        if (limitSwitch.get()) {
-            encoder.reset();
-        }
-
-        if (limitSwitch.get() && speed < 0) {
+        if (distance <= ElevatorConstants.LEVEL_ZERO && speed < 0 || distance >= ElevatorConstants.LEVEL_FOUR && speed > 0) {
             motor.stopMotor();
         } else {
             motor.set(speed);
