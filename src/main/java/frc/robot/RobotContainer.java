@@ -1,19 +1,15 @@
 package frc.robot;
+
+import com.pathplanner.lib.commands.PathPlannerAuto;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
-import edu.wpi.first.math.geometry.Pose2d;
-
-import java.io.File;
-import java.util.function.Supplier;
-
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.AimTagCommand;
 import frc.robot.commands.ChaseTagCommand;
-import frc.robot.utils.TriggerUtil;
-import frc.robot.utils.XboxControllerWrapper;
 import frc.robot.constants.AprilTagConstants;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.ElevatorConstants;
@@ -23,6 +19,10 @@ import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.LEDModeSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
+import frc.robot.utils.TriggerUtil;
+import frc.robot.utils.XboxControllerWrapper;
+import java.io.File;
+import java.util.function.Supplier;
 
 /**
  * Where most of the structure of the robot, including subsystems, commands, and
@@ -47,8 +47,10 @@ public class RobotContainer {
   private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
   private final LEDModeSubsystem ledSubsystem = new LEDModeSubsystem();
 
-  private final CommandXboxController driverController = new CommandXboxController(OperatorConstants.DRIVER_CONTROLLER_PORT);
-  private final CommandXboxController operatorController = new CommandXboxController(OperatorConstants.OPERATOR_CONTROLLER_PORT);
+  private final CommandXboxController driverController =
+    new CommandXboxController(OperatorConstants.DRIVER_CONTROLLER_PORT);
+  private final CommandXboxController operatorController =
+    new CommandXboxController(OperatorConstants.OPERATOR_CONTROLLER_PORT);
 
   // private final VisionSubsystem visionSubsystem = new VisionSim(() ->
   //   driveSubsystem.getPose()
@@ -79,7 +81,6 @@ public class RobotContainer {
       driverController.leftBumper()
     );
     setDefaultOperatorBinds();
-
     // driverController.rightBumper().whileTrue(
     // driveAngularSpeedCommand
     // .andThen(() -> {
@@ -233,21 +234,52 @@ public class RobotContainer {
   }
 
   private void setDefaultOperatorBinds() {
-    if (OperatorConstants.CONTROL_MODE == OperatorConstants.ControlMode.PARTIAL_OPERATOR) {
-      driverController.leftTrigger().whileTrue(elevatorSubsystem.holdScoringPosition());
+    if (
+      OperatorConstants.CONTROL_MODE ==
+      OperatorConstants.ControlMode.PARTIAL_OPERATOR
+    ) {
+      driverController
+        .leftTrigger()
+        .whileTrue(elevatorSubsystem.holdScoringPosition());
     }
 
-    operatorController.x().onTrue(elevatorSubsystem.setScoringPosition(ElevatorConstants.LEVEL_TWO));
-    operatorController.y().onTrue(elevatorSubsystem.setScoringPosition(ElevatorConstants.LEVEL_THREE));
-    operatorController.b().onTrue(elevatorSubsystem.setScoringPosition(ElevatorConstants.LEVEL_FOUR));
-    operatorController.a().onTrue(elevatorSubsystem.setScoringPosition(ElevatorConstants.LEVEL_ZERO));
-    operatorController.leftBumper().onTrue(elevatorSubsystem.setScoringPosition(ElevatorConstants.LEVEL_ONE));
-    operatorController.axisMagnitudeGreaterThan(1, OperatorConstants.kDeadzone).whileTrue(elevatorSubsystem.moveManual(() -> operatorController.getLeftY()));
+    operatorController
+      .x()
+      .onTrue(
+        elevatorSubsystem.setScoringPosition(ElevatorConstants.LEVEL_TWO)
+      );
+    operatorController
+      .y()
+      .onTrue(
+        elevatorSubsystem.setScoringPosition(ElevatorConstants.LEVEL_THREE)
+      );
+    operatorController
+      .b()
+      .onTrue(
+        elevatorSubsystem.setScoringPosition(ElevatorConstants.LEVEL_FOUR)
+      );
+    operatorController
+      .a()
+      .onTrue(
+        elevatorSubsystem.setScoringPosition(ElevatorConstants.LEVEL_ZERO)
+      );
+    operatorController
+      .leftBumper()
+      .onTrue(
+        elevatorSubsystem.setScoringPosition(ElevatorConstants.LEVEL_ONE)
+      );
+    operatorController
+      .axisMagnitudeGreaterThan(1, OperatorConstants.kDeadzone)
+      .whileTrue(
+        elevatorSubsystem.moveManual(() -> operatorController.getLeftY())
+      );
     operatorController.leftTrigger().whileTrue(coralSubsystem.unjam());
     operatorController.rightTrigger().whileTrue(coralSubsystem.eject());
   }
 
   public Command getAutonomousCommand() {
-    return driveSubsystem.driveToDistanceCommand(10, -1);
+    // return driveSubsystem.driveToDistanceCommand(10, -1);
+
+    return new PathPlannerAuto("STANDARD");
   }
 }

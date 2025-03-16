@@ -12,11 +12,11 @@ import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.swerve.SwerveSetpoint;
 import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -31,6 +31,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.constants.*;
 import frc.robot.subsystems.vision.EstimatedPoseStruct;
@@ -103,7 +104,7 @@ public class SwerveSubsystem extends SubsystemBase {
       swerveDrive = new SwerveParser(directory).createSwerveDrive(
         DriveConstants.kMaxSpeedMetersPerSec,
         new Pose2d(
-          new Translation2d(Meter.of(7.25), Meter.of(6)),
+          new Translation2d(Meter.of(7.172), Meter.of(7.528)),
           Rotation2d.fromDegrees(0)
         )
       );
@@ -117,6 +118,10 @@ public class SwerveSubsystem extends SubsystemBase {
       true,
       true,
       DriveConstants.kAngularVelocityCompensation
+    );
+
+    swerveDrive.swerveDriveConfiguration.imu.setOffset(
+      new Rotation3d(0, 0, 180)
     );
 
     // swerveDrive.stopOdometryThread();
