@@ -103,7 +103,7 @@ public class SwerveSubsystem extends SubsystemBase {
       swerveDrive = new SwerveParser(directory).createSwerveDrive(
         DriveConstants.kMaxSpeedMetersPerSec,
         new Pose2d(
-          new Translation2d(Meter.of(1), Meter.of(4)),
+          new Translation2d(Meter.of(7.25), Meter.of(6)),
           Rotation2d.fromDegrees(0)
         )
       );
