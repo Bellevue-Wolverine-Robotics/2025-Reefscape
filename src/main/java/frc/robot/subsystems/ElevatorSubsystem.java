@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -23,6 +24,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     private final SparkMax motor = new SparkMax(ElevatorConstants.MOTOR_ID, MotorType.kBrushless);
     private final PIDController pid = new PIDController(ElevatorConstants.KP, ElevatorConstants.KI, ElevatorConstants.KD);
     private final Encoder encoder = new Encoder(ElevatorConstants.ENCODER_CHANNEL_A, ElevatorConstants.ENCODER_CHANNEL_B, false, EncodingType.k4X);
+    private final DigitalInput limitSwitch = new DigitalInput(ElevatorConstants.LIMIT_SWITCH_ID);
 
     private double scoringPosition = 0.0d;
     private boolean overrided = false;
@@ -92,14 +94,29 @@ public class ElevatorSubsystem extends SubsystemBase {
         );
     }
 
+    private static final double SPEED_DEADBAND = 0.1;
+    private static final double CREEP_SPEED = 1; //creep speed
+
     private void movePosition(double position) {
         double distance = encoder.getDistance();
         double speed = pid.calculate(distance, position);
 
-        if (distance <= ElevatorConstants.LEVEL_ZERO && speed < 0 || distance >= ElevatorConstants.LEVEL_FOUR && speed > 0) {
-            motor.stopMotor();
-        } else {
-            motor.set(speed);
+        boolean atBottom = limitSwitch.get();
+
+        // If PID output is tiny, creep toward bottom only if we still need to descend and haven't hit switch
+        if (Math.abs(speed) < SPEED_DEADBAND) {
+            if (!atBottom && position < distance) {
+                speed = -CREEP_SPEED;
+            } else {
+                speed = 0.0;
+            }
         }
+
+        // Do not drive further down once bottom switch is hit
+        if (atBottom && speed < 0) {
+            speed = 0.0;
+        }
+
+        motor.set(speed);
     }
 }
