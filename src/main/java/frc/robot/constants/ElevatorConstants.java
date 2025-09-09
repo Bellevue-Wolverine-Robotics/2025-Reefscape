@@ -6,6 +6,7 @@ public final class ElevatorConstants {
     public static final int MOTOR_ID = 31;
     public static final int ENCODER_CHANNEL_A = 1;
     public static final int ENCODER_CHANNEL_B = 2;
+    public static final int LIMIT_SWITCH_ID = 3;
 
     public static final double KP = .36d;
     public static final double KI = 0.0d;
