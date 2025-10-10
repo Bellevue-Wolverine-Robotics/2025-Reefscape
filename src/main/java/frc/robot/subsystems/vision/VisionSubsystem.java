@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.constants.VisionConstants;
 import frc.robot.utils.CoordUtils;
-import frc.robot.utils.MathUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -55,49 +54,6 @@ public class VisionSubsystem extends SubsystemBase {
   }
 
   /**
-   * Retrieves the AprilTag detection information for the specified fiducial ID.
-   *
-   * @param fiducialId The AprilTag ID to look for.
-   * @return An {@link AprilTagStruct} containing detection data. If the tag is not visible,
-   *         targetVisible will remain false.
-   */
-  public AprilTagStruct getTargetID(int fiducialId) {
-    AprilTagStruct aprilTagData = new AprilTagStruct();
-
-    var results = frontCamera.getAllUnreadResults();
-    if (results.isEmpty()) {
-      return aprilTagData;
-    }
-
-    var latestResult = results.get(results.size() - 1);
-    if (!latestResult.hasTargets()) {
-      return aprilTagData;
-    }
-
-    var targetOptional = latestResult
-      .getTargets()
-      .stream()
-      .filter(target -> target.getFiducialId() == fiducialId)
-      .filter(
-        target ->
-          target.getPoseAmbiguity() <= 1 && target.getPoseAmbiguity() != -1
-      )
-      .findFirst();
-
-    if (!targetOptional.isPresent()) {
-      return aprilTagData;
-    }
-
-    var target = targetOptional.get();
-    // Directly use the raw yaw and camera-to-target transform
-    aprilTagData.yaw = target.getYaw();
-    aprilTagData.camToTarget = target.getBestCameraToTarget();
-    aprilTagData.targetVisible = true;
-
-    return aprilTagData;
-  }
-
-  /**
    * Estimates the robot pose from a single camera's vision data.
    *
    * @param camera The PhotonCamera to use for pose estimation
@@ -109,11 +65,13 @@ public class VisionSubsystem extends SubsystemBase {
     Transform3d cameraToRobot
   ) {
     List<PhotonPipelineResult> results = camera.getAllUnreadResults();
+
     if (results.isEmpty()) {
       return Optional.empty();
     }
 
     PhotonPipelineResult latestResult = results.get(results.size() - 1);
+
     if (!latestResult.getMultiTagResult().isPresent()) {
       return Optional.empty();
     }

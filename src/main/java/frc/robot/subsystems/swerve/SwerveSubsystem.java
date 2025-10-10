@@ -905,6 +905,6 @@ public class SwerveSubsystem extends SubsystemBase {
       )
       .headingWhile(true)
       .allianceRelativeControl(true)
-      .deadband(OperatorConstants.kDeadzone);
+      .deadband(DriveConstants.kDeadzone);
   }
 }

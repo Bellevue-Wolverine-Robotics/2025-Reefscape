@@ -44,14 +44,7 @@ public class ElevatorSubsystem extends SubsystemBase {
                 if (overrided) {
                     motor.stopMotor();
                 } else {
-                    switch (OperatorConstants.CONTROL_MODE) {
-                        case FULL_OPERATOR:
-                            movePosition(scoringPosition);
-                            break;
-                        case PARTIAL_OPERATOR:
-                            movePosition(ElevatorConstants.LEVEL_ZERO);
-                            break;
-                    }
+                    movePosition(scoringPosition);
                 }
             },
             this

@@ -12,7 +12,7 @@ import frc.robot.constants.LEDConstants;
  * LED subsystem for robot status indication.
  * Controls LED colors/patterns for states like game piece detection, AprilTag tracking, and robot status (disabled, enabled).
  */
-public class LEDModeSubsystem extends SubsystemBase {
+public class LEDSubsystem extends SubsystemBase {
     private final AddressableLED led = new AddressableLED(LEDConstants.PWM_PORT);
     private final AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(LEDConstants.LENGTH);
 
@@ -20,10 +20,9 @@ public class LEDModeSubsystem extends SubsystemBase {
     private static boolean isTrackingAprilTag = false;
 
     /**
-     * LEDModeSubsystem constructor.
      * Initializes LED strip, color buffers, and timers.
      */
-    public LEDModeSubsystem() {
+    public LEDSubsystem() {
         led.setLength(ledBuffer.getLength());
         led.start();
     }

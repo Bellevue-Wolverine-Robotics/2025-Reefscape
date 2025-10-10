@@ -49,6 +49,6 @@ public class CoralSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         boolean loaded = limitSwitch.get();
-        LEDModeSubsystem.setHasCoral(loaded);
+        LEDSubsystem.setHasCoral(loaded);
     }
 }

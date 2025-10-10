@@ -93,4 +93,7 @@ public final class DriveConstants {
   public static final double PATH_FINDING_MAX_ANGULAR_ACC = 180;
 
   public static final double SLOW_COEF = 0.15;
+
+  public static final int CONTROLLER_PORT = 0;
+  public static final double kDeadzone = 0.1;
 }
