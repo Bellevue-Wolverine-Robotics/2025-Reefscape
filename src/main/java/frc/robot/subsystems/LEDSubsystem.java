@@ -16,6 +16,7 @@ public class LEDSubsystem extends SubsystemBase {
     private final AddressableLED led = new AddressableLED(LEDConstants.PWM_PORT);
     private final AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(LEDConstants.LENGTH);
 
+    private static boolean readyToScore = false;
     private static boolean hasCoral = false;
     private static boolean isTrackingAprilTag = false;
 
@@ -25,6 +26,10 @@ public class LEDSubsystem extends SubsystemBase {
     public LEDSubsystem() {
         led.setLength(ledBuffer.getLength());
         led.start();
+    }
+
+    public static void setElevatorAtLevel(boolean atLevel) {
+        readyToScore = atLevel;
     }
 
     /**
@@ -59,7 +64,10 @@ public class LEDSubsystem extends SubsystemBase {
         if (RobotState.isDisabled()) {
             pattern = LEDConstants.Patterns.DISABLED;
         } else {
-            if (hasCoral) pattern = LEDConstants.Patterns.HAS_CORAL;
+            if (hasCoral) {
+                if (readyToScore) pattern = LEDConstants.Patterns.READY_TO_SCORE;
+                else pattern = LEDConstants.Patterns.HAS_CORAL;
+            }
             else pattern = LEDConstants.Patterns.NO_CORAL;
             if (isTrackingAprilTag) pattern = pattern.blink(LEDConstants.BLINK_SPEED);
         }

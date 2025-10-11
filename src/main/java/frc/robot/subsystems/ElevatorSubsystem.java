@@ -89,6 +89,10 @@ public class ElevatorSubsystem extends SubsystemBase {
         double distance = encoder.getDistance();
         double speed = pid.calculate(distance, position);
 
+        //1.0f is margin
+        if (distance >= ElevatorConstants.LEVEL_ZERO + 1.0f && Math.abs(speed) < 0.01f) LEDSubsystem.setElevatorAtLevel(true);
+        else LEDSubsystem.setElevatorAtLevel(false);
+
         if (distance <= ElevatorConstants.LEVEL_ZERO && speed < 0 || distance >= ElevatorConstants.LEVEL_FOUR && speed > 0) {
             motor.stopMotor();
         } else {
