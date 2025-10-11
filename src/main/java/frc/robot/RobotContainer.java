@@ -97,8 +97,6 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    // return driveSubsystem.driveToDistanceCommand(10, -1);
-
-    return new PathPlannerAuto("STANDARD");
+    return Commands.runOnce(driveSubsystem::zeroGyro).andThen(driveSubsystem.driveCommand(() -> -0.5, () -> 0, () -> 0));
   }
 }
