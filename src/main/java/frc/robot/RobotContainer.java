@@ -49,7 +49,12 @@ public class RobotContainer {
     driverController.start().onTrue((Commands.runOnce(driveSubsystem::zeroGyro)));
     driverController.back().whileTrue(driveSubsystem.centerModulesCommand());
     driverController.rightTrigger().whileTrue(driveSubsystem.driveAngularSpeedCommand(driverController, DriveConstants.SLOW_COEF));  
-    driveSubsystem.setDefaultCommand(driveSubsystem.driveAngularSpeedCommand(driverController));
+    // driveSubsystem.setDefaultCommand(driveSubsystem.driveAngularSpeedCommand(driverController));
+    driveSubsystem.setDefaultCommand(driveSubsystem.driveCommand(
+        () -> -driverController.getLeftY(),
+        () -> -driverController.getLeftX(),
+        () -> -driverController.getRightX()
+    ));
   }
 
   private void setOperatorBindings() {
