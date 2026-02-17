@@ -1,130 +1,74 @@
 package frc.robot.constants;
 
-import edu.wpi.first.math.MatBuilder;
+import java.util.List;
+import java.util.function.Supplier;
+
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
-import edu.wpi.first.math.Nat;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 public class VisionConstants {
+    public static class CameraProperties {
+        public final String name;
+        public final Transform3d robotToCamera;
 
-  private VisionConstants() {
-    // Prevent instantiation
-  }
+        public CameraProperties(String name, Transform3d robotToCamera) {
+            this.name = name;
+            this.robotToCamera = robotToCamera;
+        }
+    }
 
-  // Camera Names
-  public static final String FRONT_CAMERA = "front";
+    // TODO: Get actual camera position on robot
+    public static final List<CameraProperties> CAMERAS = List.of(
+       new CameraProperties("primary", new Transform3d(new Translation3d(Units.inchesToMeters(15.825), Units.inchesToMeters(-5.25), Units.inchesToMeters(13.625)), new Rotation3d(0, Units.degreesToRadians(0), 0)))
+    );
 
-  public static final double FRONT_CAMERA_HEIGHT_INCHES = 38;
-  public static final double FRONT_CAMERA_HEIGHT_METERS = Units.inchesToMeters(
-    FRONT_CAMERA_HEIGHT_INCHES
-  );
-  public static final double FRONT_CAMERA_FORWARD_INCHES = 1;
-  public static final double FRONT_CAMERA_FORWARD_METERS = Units.inchesToMeters(
-    FRONT_CAMERA_FORWARD_INCHES
-  );
-  public static final double FRONT_CAMERA_PITCH_DEGREES = -20;
-  public static final double FRONT_CAMERA_PITCH_RADIANS =
-    Units.degreesToRadians(FRONT_CAMERA_PITCH_DEGREES);
-  public static final Transform3d FRONT_CAMERA_TO_ROBOT = new Transform3d(
-    new Translation3d(
-      -FRONT_CAMERA_FORWARD_METERS,
-      0,
-      -FRONT_CAMERA_HEIGHT_METERS
-    ),
-    // new Translation3d(),
-    new Rotation3d(0, FRONT_CAMERA_PITCH_RADIANS, 0)
-  );
+    // Used for simulaiton
+    public static final int CAMERA_RESOLUTION_WIDTH = 1280;
+    public static final int CAMERA_RESOLUTION_HEIGHT = 720;
+    public static final double CAMERA_DIAGONAL_FOV = 68.5;
+    public static final double CAMERA_AVERAGE_ERROR_PIXEL = 0.35;
+    public static final double CAMERA_ERROR_STD_DEV_PIXEL = 0.10;
+    public static final int CAMERA_FPS = 30;
+    public static final int CAMERA_LATENCY_MS = 100;
+    public static final int CAMERA_LATENCY_STD_DEV_MS = 30;
 
-  public static final String BACK_CAMERA = "back";
+    public static final Matrix<N3, N1> SINGLE_TAG_STD_DEVS = VecBuilder.fill(0.5, 0.5, Units.degreesToRadians(10));
+    public static final Matrix<N3, N1> MULTI_TAG_STD_DEVS = VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(1));
+    public static final double SINGLE_TAG_DISTANCE_THRESHOLD = 4.0;
+    public static final double STD_DEVS_SCALING_FACTOR = 30.0;
 
-  public static final double BACK_CAMERA_HEIGHT_INCHES = 38;
-  public static final double BACK_CAMERA_HEIGHT_METERS = Units.inchesToMeters(
-    BACK_CAMERA_HEIGHT_INCHES
-  );
-  public static final double BACK_CAMERA_FORWARD_INCHES = -4;
-  public static final double BACK_CAMERA_FORWARD_METERS = Units.inchesToMeters(
-    BACK_CAMERA_FORWARD_INCHES
-  );
-  public static final double BACK_CAMERA_YAW_DEGREES = 0;
-  public static final double BACK_CAMERA_YAW_RADIANS = Units.degreesToRadians(
-    BACK_CAMERA_YAW_DEGREES
-  );
-  public static final Transform3d BACK_CAMERA_TO_ROBOT = new Transform3d(
-    new Translation3d(
-      -FRONT_CAMERA_FORWARD_METERS,
-      0,
-      -FRONT_CAMERA_HEIGHT_METERS
-    ),
-    // new Translation3d(),
-    new Rotation3d(0, 0, BACK_CAMERA_YAW_RADIANS)
-  );
+    public static final AprilTagFieldLayout TAG_LAYOUT = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
+    private static final Pose3d ORIGIN_POSE = TAG_LAYOUT.getOrigin();
+    private static final Transform2d BUMPER_TO_CENTER = new Transform2d(new Translation2d(Units.inchesToMeters(33.5), 0), new Rotation2d(0));
 
-  // PID controller constants for X-axis
-  public static final double X_PID_KP = 6.0;
-  public static final double X_PID_KI = 0.0;
-  public static final double X_PID_KD = 3.0;
-  public static final TrapezoidProfile.Constraints X_CONSTRAINTS =
-    new TrapezoidProfile.Constraints(0.5, 0.5);
-  public static final double X_TOLERANCE = 0.15;
+    private static final Pose2d getAllianceSpecificTagPose(int redTagId, int blueTagId, Transform2d transform) {
+        boolean isRed = DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red; 
+        Pose2d tagPose = TAG_LAYOUT.getTagPose(isRed ? redTagId : blueTagId).orElse(ORIGIN_POSE).toPose2d();
+        return tagPose.transformBy(transform);
+    }
 
-  // PID controller constants for Y-axis
-  public static final double Y_PID_KP = 6.0;
-  public static final double Y_PID_KI = 0.0;
-  public static final double Y_PID_KD = 3.0;
-  public static final TrapezoidProfile.Constraints Y_CONSTRAINTS =
-    new TrapezoidProfile.Constraints(0.5, 0.5);
-  public static final double Y_TOLERANCE = 0.15;
-
-  // PID controller constants for rotational (theta) axis
-  public static final double THETA_PID_KP = 1.0;
-  public static final double THETA_PID_KI = 0.0;
-  public static final double THETA_PID_KD = 0.0;
-  public static final TrapezoidProfile.Constraints THETA_CONSTRAINTS =
-    new TrapezoidProfile.Constraints(5, 4);
-  public static final double THETA_TOLERANCE_DEGREES = 1.0;
-
-  // Transformation from tag to goal pose
-  public static final Transform3d TAG_TO_GOAL = new Transform3d(
-    new Translation3d(1.0, 0.0, 0.0),
-    new Rotation3d(0.0, 0.0, Math.PI)
-  );
-
-  // Moving average window size for smoothing pose data
-  public static final int MOVING_AVERAGE_WINDOW = 60;
-
-  // Base error values (tuned empirically)
-  public static final double BASE_X_STD_DEV = 0.7; // meters
-  public static final double BASE_Y_STD_DEV = 0.7; // meters
-  public static final double BASE_THETA_STD_DEV = Math.toRadians(10); // radians
-
-  // Scale coefficients that increase uncertainty with distance.
-  public static final double X_SCALE = 0.4;
-  public static final double Y_SCALE = 0.4;
-  public static final double THETA_SCALE = Math.toRadians(30);
-
-  /**
-   * Calculates the vision measurement standard deviations as a 3x1 matrix based on the
-   * estimated robot pose.
-   * <p>
-   * The standard deviations for x, y, and theta increase linearly with the distance of the
-   * robot from the origin.
-   *
-   * @param estimatedPose the estimated pose of the robot from vision measurements.
-   * @return a {@code Matrix<N3, N1>} containing the standard deviations for [x, y, theta].
-   */
-  public static Matrix<N3, N1> getEstimationStdDevs(Double distance) {
-    double xStdDev = BASE_X_STD_DEV + X_SCALE * distance;
-    double yStdDev = BASE_Y_STD_DEV + Y_SCALE * distance;
-    double thetaStdDev = BASE_THETA_STD_DEV + THETA_SCALE * distance;
-
-    // Use the static fill method from MatBuilder to create a 3x1 matrix.
-    return MatBuilder.fill(Nat.N3(), Nat.N1(), xStdDev, yStdDev, thetaStdDev);
-  }
+    public static final Supplier<Pose2d> LEFT_BRANCH_SUPPLIER = () -> {
+        Transform2d transform = new Transform2d(new Translation2d(Units.inchesToMeters(6), Units.inchesToMeters(6.5)), Rotation2d.fromDegrees(180)).plus(BUMPER_TO_CENTER);
+        return getAllianceSpecificTagPose(7, 18, transform);
+    };
+  
+    public static final Supplier<Pose2d> RIGHT_BRANCH_SUPPLIER = () -> {
+      Transform2d transform = new Transform2d(new Translation2d(Units.inchesToMeters(6), Units.inchesToMeters(6.5)), Rotation2d.fromDegrees(180)).plus(BUMPER_TO_CENTER);
+      return getAllianceSpecificTagPose(7, 18, transform);
+    };
 }
