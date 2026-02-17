@@ -83,6 +83,10 @@ public class ElevatorSubsystem extends SubsystemBase {
         );
     }
 
+    public Command reset() {
+        return Commands.runOnce(encoder::reset);
+    }
+
     private void movePosition(double position) {
         double distance = encoder.getDistance();
         double speed = pid.calculate(distance, position);

@@ -54,6 +54,7 @@ public class RobotContainer {
     operatorController.axisMagnitudeGreaterThan(1, DriverStationConstants.OPERATOR_CONTROLLER_LEFT_DEADBAND).whileTrue(elevatorSubsystem.moveManual(() -> operatorController.getLeftY()) );
     operatorController.leftTrigger().whileTrue(coralSubsystem.unjam());
     operatorController.rightTrigger().whileTrue(coralSubsystem.eject());
+    operatorController.start().onTrue(elevatorSubsystem.reset());
   }
 
   public Command getAutonomousCommand() {
