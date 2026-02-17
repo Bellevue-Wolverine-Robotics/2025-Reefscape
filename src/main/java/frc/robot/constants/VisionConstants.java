@@ -52,7 +52,7 @@ public class VisionConstants {
     public static final double SINGLE_TAG_DISTANCE_THRESHOLD = 4.0;
     public static final double STD_DEVS_SCALING_FACTOR = 30.0;
 
-    public static final AprilTagFieldLayout TAG_LAYOUT = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
+    public static final AprilTagFieldLayout TAG_LAYOUT = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
     private static final Pose3d ORIGIN_POSE = TAG_LAYOUT.getOrigin();
     private static final Transform2d BUMPER_TO_CENTER = new Transform2d(new Translation2d(Units.inchesToMeters(33.5), 0), new Rotation2d(0));
 
